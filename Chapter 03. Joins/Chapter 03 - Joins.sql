@@ -1,11 +1,11 @@
 ---------------------------------------------------------------------
 -- Microsoft SQL Server T-SQL Fundamentals
 -- Chapter 03 - Joins
--- © Itzik Ben-Gan 
+-- Â© Itzik Ben-Gan 
 ---------------------------------------------------------------------
 
 ---------------------------------------------------------------------
--- CROSS Joins
+3.1 CROSS Joins
 ---------------------------------------------------------------------
 
 USE TSQLV4;
@@ -50,7 +50,7 @@ FROM         dbo.Digits AS D1
 ORDER BY n;
 
 ---------------------------------------------------------------------
--- INNER Joins
+3.2 INNER Joins
 ---------------------------------------------------------------------
 
 USE TSQLV4;
@@ -80,11 +80,10 @@ FROM HR.Employees AS E, Sales.Orders AS O;
 GO
 
 ---------------------------------------------------------------------
--- More Join Examples
+3.3 More Join Examples
 ---------------------------------------------------------------------
-
 ---------------------------------------------------------------------
--- Composite Joins
+3.3.1 Composite Joins
 ---------------------------------------------------------------------
 
 -- Audit table for updates against OrderDetails
@@ -117,7 +116,7 @@ FROM Sales.OrderDetails AS OD
 WHERE ODA.columnname = N'qty';
 
 ---------------------------------------------------------------------
--- Non-Equi Joins
+3.3.2 Non-Equi Joins
 ---------------------------------------------------------------------
 
 -- Unique pairs of employees
@@ -129,7 +128,7 @@ FROM HR.Employees AS E1
     ON E1.empid < E2.empid;
 
 ---------------------------------------------------------------------
--- Multi-Join Queries
+3.3.3 Multi-Join Queries
 ---------------------------------------------------------------------
 
 SELECT
@@ -142,7 +141,9 @@ FROM Sales.Customers AS C
     ON O.orderid = OD.orderid;
 
 ---------------------------------------------------------------------
--- Fundamentals of Outer Joins 
+3.4 Outer Joins
+---------------------------------------------------------------------
+3.4.1 Fundamentals of Outer Joins 
 ---------------------------------------------------------------------
 
 -- Customers and their orders, including customers with no orders
@@ -159,11 +160,10 @@ FROM Sales.Customers AS C
 WHERE O.orderid IS NULL;
 
 ---------------------------------------------------------------------
--- Beyond the Fundamentals of Outer Joins
+3.4.2 Beyond the Fundamentals of Outer Joins
 ---------------------------------------------------------------------
-
 ---------------------------------------------------------------------
--- Including Missing Values
+3.4.2.1 Including Missing Values
 ---------------------------------------------------------------------
 
 SELECT DATEADD(day, n-1, CAST('20140101' AS DATE)) AS orderdate
@@ -180,7 +180,7 @@ WHERE Nums.n <= DATEDIFF(day, '20140101', '20161231') + 1
 ORDER BY orderdate;
 
 ---------------------------------------------------------------------
--- Filtering Attributes from Non-Preserved Side of Outer Join
+3.4.2.2 Filtering Attributes from Non-Preserved Side of Outer Join
 ---------------------------------------------------------------------
 
 SELECT C.custid, C.companyname, O.orderid, O.orderdate
@@ -190,7 +190,7 @@ FROM Sales.Customers AS C
 WHERE O.orderdate >= '20160101';
 
 ---------------------------------------------------------------------
--- Using Outer Joins in a Multi-Join Query
+3.4.2.3 Using Outer Joins in a Multi-Join Query
 ---------------------------------------------------------------------
 
 SELECT C.custid, O.orderid, OD.productid, OD.qty
@@ -226,7 +226,7 @@ FROM Sales.Customers AS C
     ON C.custid = O.custid;
 
 ---------------------------------------------------------------------
--- Using the COUNT Aggregate with Outer Joins
+3.4.2.4 Using the COUNT Aggregate with Outer Joins
 ---------------------------------------------------------------------
 
 SELECT C.custid, COUNT(*) AS numorders
