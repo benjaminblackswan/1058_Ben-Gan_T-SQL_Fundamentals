@@ -1,11 +1,11 @@
 ---------------------------------------------------------------------
 -- Microsoft SQL Server T-SQL Fundamentals
 -- Chapter 02 - Single-Table Queries
--- © Itzik Ben-Gan 
+-- Â© Itzik Ben-Gan 
 ---------------------------------------------------------------------
 
 ---------------------------------------------------------------------
--- Elements of the SELECT Statement
+2.1 Elements of the SELECT Statement
 ---------------------------------------------------------------------
 
 -- Listing 2-1: Sample Query
@@ -19,14 +19,14 @@ HAVING COUNT(*) > 1
 ORDER BY empid, orderyear;
 
 ---------------------------------------------------------------------
--- The FROM Clause
+2.1.1 The FROM Clause
 ---------------------------------------------------------------------
 
 SELECT orderid, custid, empid, orderdate, freight
 FROM Sales.Orders;
 
 ---------------------------------------------------------------------
--- The WHERE Clause
+2.1.2 The WHERE Clause
 ---------------------------------------------------------------------
 
 SELECT orderid, empid, orderdate, freight
@@ -34,7 +34,7 @@ FROM Sales.Orders
 WHERE custid = 71;
 
 ---------------------------------------------------------------------
--- The GROUP BY Clause
+2.1.3 The GROUP BY Clause
 ---------------------------------------------------------------------
 
 SELECT empid, YEAR(orderdate) AS orderyear
@@ -66,7 +66,7 @@ FROM Sales.Orders
 GROUP BY empid, YEAR(orderdate);
 
 ---------------------------------------------------------------------
--- The HAVING Clause
+2.1.4 The HAVING Clause
 ---------------------------------------------------------------------
 
 SELECT empid, YEAR(orderdate) AS orderyear
@@ -76,7 +76,7 @@ GROUP BY empid, YEAR(orderdate)
 HAVING COUNT(*) > 1;
 
 ---------------------------------------------------------------------
--- The SELECT Clause
+2.1.5 The SELECT Clause
 ---------------------------------------------------------------------
 
 SELECT orderid orderdate
@@ -138,7 +138,7 @@ SELECT orderid,
 FROM Sales.Orders;
 
 ---------------------------------------------------------------------
--- The ORDER BY Clause
+2.1.6 The ORDER BY Clause
 ---------------------------------------------------------------------
 
 -- Listing 2-4: Query Demonstrating the ORDER BY Clause
@@ -160,11 +160,10 @@ ORDER BY empid;
 */
 
 ---------------------------------------------------------------------
--- The TOP and OFFSET-FETCH Filters
+2.1.7 The TOP and OFFSET-FETCH Filters
 ---------------------------------------------------------------------
-
 ---------------------------------------------------------------------
--- The TOP Filter
+2.1.7.1 The TOP Filter
 ---------------------------------------------------------------------
 
 -- Listing 2-5: Query Demonstrating the TOP Option
@@ -186,7 +185,7 @@ FROM Sales.Orders
 ORDER BY orderdate DESC;
 
 ---------------------------------------------------------------------
--- The OFFSET-FETCH Filter
+2.1.7.2 The OFFSET-FETCH Filter
 ---------------------------------------------------------------------
 
 -- OFFSET-FETCH
@@ -196,7 +195,7 @@ ORDER BY orderdate, orderid
 OFFSET 50 ROWS FETCH NEXT 25 ROWS ONLY;
 
 ---------------------------------------------------------------------
--- A Quick Look at Window Functions
+2.1.8 A Quick Look at Window Functions
 ---------------------------------------------------------------------
 
 SELECT orderid, custid, val,
@@ -206,7 +205,7 @@ FROM Sales.OrderValues
 ORDER BY custid, val;
 
 ---------------------------------------------------------------------
--- Predicates and Operators
+2.2 Predicates and Operators
 ---------------------------------------------------------------------
 
 -- Predicates: IN, BETWEEN, LIKE
@@ -265,7 +264,7 @@ SELECT 10 + 2 * 3   -- 16
 SELECT (10 + 2) * 3 -- 36
 
 ---------------------------------------------------------------------
--- CASE Expression
+2.3 CASE Expression
 ---------------------------------------------------------------------
 
 -- Simple
@@ -294,7 +293,7 @@ SELECT orderid, custid, val,
 FROM Sales.OrderValues;
 
 ---------------------------------------------------------------------
--- NULLs
+2.4 NULLs
 ---------------------------------------------------------------------
 
 SELECT custid, country, region, city
@@ -319,7 +318,7 @@ WHERE region <> N'WA'
    OR region IS NULL;
 
 ---------------------------------------------------------------------
--- All-At-Once Operations
+2.5 All-At-Once Operations
 ---------------------------------------------------------------------
 
 /*
@@ -354,11 +353,10 @@ WHERE (col1 > 0 AND col2 > 2*col1) OR (col1 < 0 AND col2 < 2*col1);
 */
 
 ---------------------------------------------------------------------
--- Working with Character Data
+2.6 Working with Character Data
 ---------------------------------------------------------------------
-
 ---------------------------------------------------------------------
--- Collation
+2.6.2 Collation
 ---------------------------------------------------------------------
 
 SELECT name, description
@@ -373,7 +371,7 @@ FROM HR.Employees
 WHERE lastname COLLATE Latin1_General_CS_AS = N'davis';
 
 ---------------------------------------------------------------------
--- Operators and Functions
+2.6.3 Operators and Functions
 ---------------------------------------------------------------------
 
 -- Concatenation
@@ -465,7 +463,7 @@ myvalue
 */
 
 ---------------------------------------------------------------------
--- LIKE Predicate
+2.6.4 LIKE Predicate
 ---------------------------------------------------------------------
 
 -- Last name starts with D
@@ -494,7 +492,7 @@ FROM HR.Employees
 WHERE lastname LIKE N'[^A-E]%';
 
 ---------------------------------------------------------------------
--- Working with Date and Time Data
+2.7 Working with Date and Time Data
 ---------------------------------------------------------------------
 
 -- Literals
@@ -693,10 +691,11 @@ FROM Sales.Orders
 WHERE orderdate = EOMONTH(orderdate);
 
 ---------------------------------------------------------------------
--- Querying Metadata
+2.8 Querying Metadata
 ---------------------------------------------------------------------
-
--- Catalog Views
+---------------------------------------------------------------------
+2.8.1 Catalog Views
+---------------------------------------------------------------------
 USE TSQLV4;
 
 SELECT SCHEMA_NAME(schema_id) AS table_schema_name, name AS table_name
@@ -723,7 +722,9 @@ FROM INFORMATION_SCHEMA.COLUMNS
 WHERE TABLE_SCHEMA = N'Sales'
   AND TABLE_NAME = N'Orders';
 
--- System Stored Procedures and Functions
+---------------------------------------------------------------------
+2.8.2 System Stored Procedures and Functions
+---------------------------------------------------------------------
 EXEC sys.sp_tables;
 
 EXEC sys.sp_help
