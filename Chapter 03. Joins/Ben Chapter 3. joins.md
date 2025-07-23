@@ -143,10 +143,58 @@ on E1.empid < E2.empid;
 
 ## 3.3.3 Multi-join queries
 
+**Multi-join queries** are queries that involves joining three or more tables.
 
+**Note: this is not the same as composite joins**
+
+
+```
+select
+	C.custid, C.companyname, O.orderid,
+	OD.productid, OD.qty
+from sales.customers as C
+Inner join sales.orders as O
+on C.custid = O.custid
+Inner join sales.OrderDetails as OD
+on  O.orderid = OD.orderid;
+```
 
 # 3.4 Outer joins
 
 ## 3.4.1 Fundamentals of outer joins
 
+```
+select C.custid, C.companyname, O.orderid
+from sales.customers as C
+left outer join sales.orders as O
+on C.custid = O.custid
+```
+
+The outer join returned 832 rows, vs. the 830 rows returned by inner join.
+
+### Anti Join
+This returns the rows that would not be included in the inner join.
+
+```
+select C.custid, C.companyname, O.orderid
+from sales.customers as C
+left join sales.orders as O
+on C.custid = O.custid
+where O.orderid is null
+```
+<img width="290" height="258" alt="image" src="https://github.com/user-attachments/assets/d373b002-359a-4d6b-af88-098634cfc15c" />
+
+
 ## 3.4.2 Beyond the fundamentals of outer joins
+
+### 3.4.2.1 Including Missing values
+
+First, we write a query that returns a sequence of all dates in the requested period. Then we perform a left join between that set and the `Orders` table.
+
+
+
+### 3.4.2.2 filtering attributes from the nonpreserved side of an outer join
+
+### 3.4.2.3 Using outer joins in a multi-join query
+
+### 3.4.2.4 Using the COUNT aggregate with outer joins
