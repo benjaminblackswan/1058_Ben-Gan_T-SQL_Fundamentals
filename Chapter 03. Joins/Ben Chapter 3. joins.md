@@ -184,13 +184,21 @@ where O.orderid is null
 ```
 <img width="290" height="258" alt="image" src="https://github.com/user-attachments/assets/d373b002-359a-4d6b-af88-098634cfc15c" />
 
-
 ## 3.4.2 Beyond the fundamentals of outer joins
 
 ### 3.4.2.1 Including Missing values
 
 First, we write a query that returns a sequence of all dates in the requested period. Then we perform a left join between that set and the `Orders` table.
 
+To do this we first create a number table using the cross join method discussed in 3.1.4.
+
+Then using this **number tabble** we can then create a list of date ranges
+
+
+```
+select dateadd(day, n-1, cast('20140101' as date)) as orderdate
+from nums
+```
 
 
 ### 3.4.2.2 filtering attributes from the nonpreserved side of an outer join
