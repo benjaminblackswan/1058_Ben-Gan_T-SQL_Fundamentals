@@ -213,10 +213,97 @@ order by custid, orderid;
 
 ## 4.2.1 The EXISTS predicate
 
+```
+select custid, companyname
+from sales.customers as C
+where country = N'Spain'
+and exists
+		(select * from sales.orders as O
+		where O.custid = C.custid)
+```
 
+<img width="188" height="109" alt="image" src="https://github.com/user-attachments/assets/59397c03-44ca-4646-b8cd-234d1beea074" />
 
+This can also be achieved using Self-Contained multivalue subquery
+
+```
+select custid, companyname
+from sales.customers as C
+where country = N'Spain'
+and custid in 
+		(select custid from sales.orders as O)
+```
+
+### negate this
+
+```
+select custid, companyname
+from sales.customers as C
+where country = N'Spain'
+and NOT exists
+		(select * from sales.orders as O
+		where O.custid = C.custid)
+```
+
+```
+select custid, companyname
+from sales.customers as C
+where country = N'Spain'
+and custid NOT in 
+		(select custid from sales.orders as O)
+```
+
+<img width="195" height="67" alt="image" src="https://github.com/user-attachments/assets/9e625b66-389d-46c2-8f27-1f1793a9a275" />
 
 # 4.3 Beyond the Fundamentals of Subqueries
+
+## 4.3.1 Returning Previous or Next Values
+
+```
+select orderid, orderdate, empid, custid, 
+(select MAX(O2.orderid)
+from sales.orders as O2
+where O2.orderid < O1.orderid
+) as prev_orderid
+from sales.orders as O1
+```
+
+```
+select orderid, orderdate, empid, custid, 
+(select MIN(O2.orderid)
+from sales.orders as O2
+where O2.orderid > O1.orderid
+) as next_orderid
+from sales.orders as O1
+```
+
+
+
+## 4.3.2 Using Running Aggregates
+
+
+
+
+
+
+
+
+
+
+
+
+## 4.3.3 Dealing with misbabehaving subqueries
+
+
+
+
+### 4.3.3.1 NULL Trouble
+
+
+
+### 4.3.3.2 Substitution errors in subquery column names
+
+
 
 
 
