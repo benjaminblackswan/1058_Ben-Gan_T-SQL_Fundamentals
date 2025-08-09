@@ -158,22 +158,69 @@ from dbo.nums
 where n between (select min(o.orderid) from dbo.orders as o)
 		and (select max(o.orderid) from dbo.orders as o)
 		and n not in (select o.orderid from dbo.orders as o)
+order by n
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<img width="86" height="305" alt="image" src="https://github.com/user-attachments/assets/43eff7db-5801-4832-bba7-106e7a483319" />
 
 
 # 4.2 Correlated Subqueries
+
+
+
+```
+select custid, orderid, orderdate, empid
+from sales.orders as O1
+where orderid = 
+(select max(O2.orderid)
+	from sales.orders as O2
+	where O2.custid = O1.custid)
+order by custid
+```
+
+<img width="233" height="405" alt="image" src="https://github.com/user-attachments/assets/031b5319-d56a-45fa-8a40-3b8941c05fbe" />
+
+This result can be also be achieved using a self-contained multivalue subquery
+
+```
+select custid, orderid, orderdate, empid
+from sales.orders as O2
+where orderid in(
+select max(orderid)
+from sales.orders as O1
+group by custid)
+order by custid
+```
+
+### percent of total
+
+```
+select orderid, custid, val, 
+cast(100 * val / (select sum(O2.val)
+					from sales.ordervalues as O2
+					where O2.custid = O1.custid) as numeric(5,2)) as pct
+from sales.ordervalues as O1
+order by custid, orderid;
+```
+
+<img width="230" height="407" alt="image" src="https://github.com/user-attachments/assets/8930cbb0-a3ab-4432-9c4f-a3359de4b653" />
+
+
+
+
+
+
+
+## 4.2.1 The EXISTS predicate
+
+
+
+
+# 4.3 Beyond the Fundamentals of Subqueries
+
+
+
+
+
+
+
