@@ -277,32 +277,202 @@ where O2.orderid > O1.orderid
 from sales.orders as O1
 ```
 
-
-
 ## 4.3.2 Using Running Aggregates
 
-
-
-
-
-
-
-
-
-
+```
+select orderyear, qty, 
+	(select sum(O2.qty)
+	from sales.OrderTotalsByYear as O2
+	where O2.orderyear <= O1.orderyear) as running_total
+from sales.OrderTotalsByYear as O1
+order by orderyear;
+```
+<img width="226" height="107" alt="image" src="https://github.com/user-attachments/assets/83c1e50a-322b-420d-84e1-f3cc1ab26e68" />
 
 
 ## 4.3.3 Dealing with misbabehaving subqueries
 
-
-
-
 ### 4.3.3.1 NULL Trouble
 
+The following query returns customers who did not place orders
 
+```
+select custid, companyname
+from sales.Customers
+where custid not in (select O.custid
+					from sales.orders as O);
+
+```
+
+<img width="191" height="87" alt="image" src="https://github.com/user-attachments/assets/6c9b41bf-70c7-45e0-a5ff-be750a016192" />
+
+
+```
+INSERT INTO Sales.Orders
+  (custid, empid, orderdate, requireddate, shippeddate, shipperid,
+   freight, shipname, shipaddress, shipcity, shipregion,
+   shippostalcode, shipcountry)
+  VALUES(NULL, 1, '20160212', '20160212',
+         '20160212', 1, 123.00, N'abc', N'abc', N'abc',
+         N'abc', N'abc', N'abc');
+
+
+select custid, companyname
+from sales.Customers
+where custid not in (select O.custid
+					from sales.orders as O);
+```
+
+<img width="182" height="154" alt="image" src="https://github.com/user-attachments/assets/4a0768f5-1f45-4502-9f00-636a061aef8d" />
+
+---
+
+## Ben's hypotheses
+
+Say we have three numbers 1, 2 and 3
+
+<img width="318" height="332" alt="image" src="https://github.com/user-attachments/assets/4040bccc-02ca-418a-be88-8bfccf07f810" />
+
+### Is 1 in (1,2,3)
+
+To answer this question, we ask 
+
+* 1 = 1? **or**
+* 1 = 2? **or**
+* 1 = 3?
+
+Only one of answer needs to evaluate to a TRUE to return TRUE for the question. So to answer the question, is 1 in (1,2,3)
+
+* 1 = 1? **or** TRUE
+* 1 = 2?  **or** FALSE
+* 1 = 3? FALSE
+
+Since 1 = 1, therefore 1 in (1,2,3) is TRUE.
+
+### Is 1 NOT in (1,2,3)
+
+To answer this question, we ask
+
+* 1 <> 1? **AND**
+* 1 <> 2? **AND**
+* 1 <> 3?
+
+For the statement Is 1 NOT in (1,2,3), all three questions above must be TRUE
+
+* 1 <> 1? **AND** FALSE 1 = 1
+* 1 <> 2? **AND** TRUE
+* 1 <> 3?         TRUE
+
+Therefore Is 1 NOT in (1,2,3) is FALSE
+
+### Examples in SSMS
+
+```
+create table dbo.managers
+(managerid int, name varchar(20))
+
+insert into dbo.managers
+values
+(1, 'Gil'),
+(2, 'Pet'),
+(3, 'Sag')
+```
+
+
+```
+select * from managers
+where managerid in (1, 2)
+```
+<img width="160" height="90" alt="image" src="https://github.com/user-attachments/assets/7b141e42-65fb-433c-aacd-e36a73e01eb7" />
+
+
+
+
+
+
+```
+select * from managers
+where managerid NOT IN (1, 2)
+```
+
+<img width="151" height="70" alt="image" src="https://github.com/user-attachments/assets/070dda58-d8ad-46f5-aab5-b327fa7fc514" />
+
+**Remember, NOT IN uses AND operand to maintain mutual exclusivity**
+
+---
+
+### Lets test IN with NULLs
+
+```
+select * from managers
+where managerid IN (1, 2, NULL)
+```
+
+This will return
+
+<img width="151" height="63" alt="image" src="https://github.com/user-attachments/assets/5e91397b-092d-477e-9ff7-3cee31553918" />
+
+Because 
+
+1 = 1 for managerid 1 therefore managerid IN (1, 2, NULL) = TRUE
+
+2 = 2 for managerid 2 therefore managerid IN (1, 2, NULL) = TRUE
+
+nothing is TRUE for managerid 3  therefore managerid IN (1, 2, NULL) = FALSE
+
+
+
+### Lets test NOT IN with NULLs
+
+```
+select * from managers
+where managerid NOT IN (1, 2, NULL)
+```
+
+<img width="167" height="57" alt="image" src="https://github.com/user-attachments/assets/38b243cf-afc2-4e38-80b8-8a8d8281b62a" />
+
+
+This is asking, for example managerid 1
+
+* 1 <> 1? **AND**   FALSE
+* 1 <> 2? **AND** 	TRUE			
+* 1 <> NULL?        UNKNOWN
+
+Remember NOT IN uses **AND**, so all three statements has to evaluate to TRUE for that row to be returned. FALSE and UNKNOWN will be filtered out.
+
+Since there is a NULL in the IN (), all rows will evaluate to FALSE since the <> NULL will **always** return UNKNOWN.
+
+
+### How to fix NULL trouble??
+
+#### Explicitly Filter it out in the inner query 
+
+```
+select custid, companyname
+from sales.Customers
+where custid NOT IN (select O.custid
+					from sales.orders as O
+					WHERE O.custid is not null);
+```
+
+#### use NOT EXISTS in a correlated subquery
+
+```
+select custid, companyname
+from sales.Customers as C
+where NOT EXISTS (select *
+					from sales.orders as O
+					WHERE O.custid = C.custid );
+```
+
+
+clean up
+
+```
+delete from sales.orders where custid is null;
+```
 
 ### 4.3.3.2 Substitution errors in subquery column names
-
 
 
 
