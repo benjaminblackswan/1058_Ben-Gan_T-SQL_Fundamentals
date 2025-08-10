@@ -474,10 +474,69 @@ delete from sales.orders where custid is null;
 
 ### 4.3.3.2 Substitution errors in subquery column names
 
+```
+DROP TABLE IF EXISTS Sales.MyShippers;
+
+CREATE TABLE Sales.MyShippers
+(
+  shipper_id  INT          NOT NULL,
+  companyname NVARCHAR(40) NOT NULL,
+  phone       NVARCHAR(24) NOT NULL,
+  CONSTRAINT PK_MyShippers PRIMARY KEY(shipper_id)
+);
+
+INSERT INTO Sales.MyShippers(shipper_id, companyname, phone)
+  VALUES(1, N'Shipper GVSUA', N'(503) 555-0137'),
+	      (2, N'Shipper ETYNR', N'(425) 555-0136'),
+				(3, N'Shipper ZHISN', N'(415) 555-0138');
+GO
+```
+
+```
+SELECT shipper_id, companyname
+FROM Sales.MyShippers
+WHERE shipper_id IN
+  (SELECT shipper_id
+   FROM Sales.Orders
+   WHERE custid = 43);
+```
+
+<img width="198" height="84" alt="image" src="https://github.com/user-attachments/assets/a0aabe0c-49cf-4890-ab99-cb963134e6bc" />
+
+To avoid this 
+* Use consistent attribute names across tables.
+* prefix column names in subqueries with the source table name or alias.
 
 
+#### lets add an alias to the inner subquery
 
+```
+SELECT shipper_id, companyname
+FROM Sales.MyShippers
+WHERE shipper_id IN
+  (SELECT O.shipper_id
+   FROM Sales.Orders as O
+   WHERE custid = 43);
+```
 
+<img width="456" height="136" alt="image" src="https://github.com/user-attachments/assets/4187531e-fb59-446f-900b-b86ff93c7d36" />
 
+then you can correct it.
 
+```
+SELECT shipper_id, companyname
+FROM Sales.MyShippers
+WHERE shipper_id IN
+  (SELECT O.shipperid
+   FROM Sales.Orders as O
+   WHERE custid = 43);
+```
+
+<img width="260" height="132" alt="image" src="https://github.com/user-attachments/assets/920acc88-3a43-4c81-9131-5c9ecbd48f39" />
+
+#### clean up
+
+```
+drop table if exists sales.MyShippers
+```
 
