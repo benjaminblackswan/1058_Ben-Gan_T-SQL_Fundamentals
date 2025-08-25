@@ -19,18 +19,22 @@ orderid     orderdate  custid      empid
 (30 row(s) affected)
 
 ## Not recommended solution
+```
 SELECT orderid, orderdate, custid, empid
 FROM Sales.Orders
 WHERE YEAR(orderdate) = 2015 AND MONTH(orderdate) = 6;
+```
 
 <img width="905" height="330" alt="image" src="https://github.com/user-attachments/assets/721b6ffe-4313-44fe-a1a9-4402520c8488" />
 
 
 ## Recommended solution
+```
 SELECT orderid, orderdate, custid, empid
 FROM Sales.Orders
 WHERE orderdate >= '20150601' 
   AND orderdate < '20150701';
+```
 
 <img width="850" height="307" alt="image" src="https://github.com/user-attachments/assets/fc18a324-51f3-4ed5-b551-599565f91b3d" />
 
@@ -42,11 +46,20 @@ Upper bound recommendation
 
 
 
+
+
+
+
+
 # Exercise 2
+
 -- Return orders placed on the last day of the month
+
 -- Tables involved: Sales.Orders table
 
 -- Desired output:
+
+```
 orderid     orderdate  custid      empid
 ----------- ---------- ----------- -----------
 10269       2014-07-31 89          5
@@ -60,27 +73,70 @@ orderid     orderdate  custid      empid
 10491       2015-03-31 28          8
 10522       2015-04-30 44          4
 ...
+```
 
 (26 row(s) affected)
 
--- 3 
+## My solution
+```
+select orderid, orderdate, custid, empid
+from sales.orders
+where orderdate = eomonth(orderdate)
+```
+
+## Alternative solution using DATEADD
+```
+select orderid, orderdate, custid, empid
+from sales.orders
+where orderdate = DATEADD(MONTH, DATEDIFF(month, 0, orderdate), 0)
+```
+
+
+
+
+
+
+
+# Exercise 3
 -- Return employees with last name containing the letter 'e' twice or more
+
 -- Tables involved: HR.Employees table
 
 -- Desired output:
+```
 empid       firstname  lastname
 ----------- ---------- --------------------
 4           Yael       Peled
 5           Sven       Mortensen
-
+```
 (2 row(s) affected)
 
--- 4 
+## My solution
+```
+select empid, firstname, lastname
+from hr.Employees
+where lastname like '%e%e%'
+```
+
+
+
+
+
+
+
+
+
+
+
+# Exercise 4
 -- Return orders with total value(qty*unitprice) greater than 10000
+
 -- sorted by total value
+
 -- Tables involved: Sales.OrderDetails table
 
--- Desired output:
+Desired output:
+```
 orderid     totalvalue
 ----------- ---------------------
 10865       17250.00
@@ -97,10 +153,36 @@ orderid     totalvalue
 10479       10495.60
 10540       10191.70
 10691       10164.80
+```
 
 (14 row(s) affected)
 
--- 5
+
+## Solution
+```
+select orderid, sum(qty*unitprice) as TotalValue
+from sales.orderdetails
+group by orderid
+having sum(qty*unitprice) > 10000
+order by TotalValue desc
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Exercise 5
 -- Write a query against the HR.Employees table that returns employees
 -- with a last name that starts with a lower case letter.
 -- Remember that the collation of the sample database
@@ -143,7 +225,7 @@ Sweden          105.16
 
 (3 row(s) affected)
 
--- 8 
+# Exercise 8
 -- Calculate row numbers for orders
 -- based on order date ordering (using order id as tiebreaker)
 -- for each customer separately
@@ -166,7 +248,7 @@ custid      orderdate  orderid     rownum
 
 (830 row(s) affected)
 
--- 9
+# Exercise 9
 -- Figure out and return for each employee the gender based on the title of courtesy
 -- Ms., Mrs. - Female, Mr. - Male, Dr. - Unknown
 -- Tables involved: HR.Employees table
@@ -186,7 +268,7 @@ empid       firstname  lastname             titleofcourtesy           gender
 
 (9 row(s) affected)
 
--- 10
+# Exercise 10
 -- Return for each customer the customer ID and region
 -- sort the rows in the output by region
 -- having NULLs sort last (after non-NULL values)
