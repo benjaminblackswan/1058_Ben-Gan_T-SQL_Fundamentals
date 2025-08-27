@@ -407,6 +407,7 @@ where orderdate = '20160212'
 -- Tables involved: TSQLV4 database, Customers and Orders tables
 
 -- Desired output
+```
 custid      companyname     orderid     orderdate
 ----------- --------------- ----------- ----------
 72          Customer AHPOP  NULL        NULL
@@ -442,7 +443,7 @@ custid      companyname     orderid     orderdate
 54          Customer TDKEG  NULL        NULL
 20          Customer THHDP  NULL        NULL
 ...
-
+```
 (91 row(s) affected)
 
 
@@ -460,18 +461,17 @@ and o.orderdate = '2016-02-12')
 
 
 # Exercises 8 (Optional, Advanced)
+
 -- Explain why the following query isn’t a correct solution query for exercise 7.
+
+```
 SELECT C.custid, C.companyname, O.orderid, O.orderdate
 FROM Sales.Customers AS C
   LEFT OUTER JOIN Sales.Orders AS O
     ON O.custid = C.custid
 WHERE O.orderdate = '20160212'
    OR O.orderid IS NULL;
-
-
-
-
-
+```
 
 
 
@@ -522,3 +522,17 @@ custid      companyname     HasOrderOn20160212
 ...
 
 (91 row(s) affected)
+
+## Solution
+```
+select c.custid, c.companyname, 
+case when o.orderdate is null then 'No' else 'Yes' end as HasOrderOn20160212
+from sales.Customers c
+left join sales.orders o
+on (c.custid = o.custid
+and o.orderdate = '2016-02-12')
+```
+
+simply add a case statement in the selection statement
+
+---
