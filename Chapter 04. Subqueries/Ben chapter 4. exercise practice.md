@@ -153,18 +153,23 @@ empid       FirstName  lastname
 ## Solution
 
 this is a multivalued subquery
+
 ```
 select empid, firstname, lastname
 from hr.employees
-where empid in (
+where empid in
 
+(
 select e.empid from hr.employees e
 join sales.orders o
 on o.empid = e.empid
 group by e.empid
-having max(orderdate) < '20160501')
-
+having max(orderdate) < '20160501'
+)
 ```
+
+
+
 
 
 
@@ -209,6 +214,12 @@ Venezuela
 (19 row(s) affected)
 
 
+## Solution
+```
+select distinct country from sales.customers
+where country not in (
+select country from hr.Employees)
+```
 
 
 
@@ -218,7 +229,7 @@ Venezuela
 
 
 
-
+---
 
 
 
@@ -249,6 +260,27 @@ custid      orderid     orderdate   empid
 ```
 
 (90 row(s) affected)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Exercise 6
 -- Write a query that returns customers
