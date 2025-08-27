@@ -45,7 +45,7 @@ select digit from dbo.digits
 
 <img width="217" height="273" alt="image" src="https://github.com/user-attachments/assets/aeab8ad3-7ca7-497d-a1bb-2fb3c71cbef8" />
 
-To get number from 1 to 100
+### To get number from 1 to 100
 
 ```
 select d2.digit * 10 + d1.digit + 1 as n
@@ -54,7 +54,7 @@ cross join digits d2
 order by n
 ```
 
-to get numbers from 1 to 1000
+### to get numbers from 1 to 1000
 
 ```
 select d3.digit * 100 + d2.digit * 10 + d1.digit + 1 as n
@@ -62,6 +62,31 @@ from digits d1
 cross join digits d2
 cross join digits d3
 order by n
+```
+
+### to get numbers from 1 to 10000
+
+```
+select d4.digit * 1000 + d3.digit * 100 + d2.digit * 10 + d1.digit + 1 as n
+from digits d1
+cross join digits d2
+cross join digits d3
+cross join digits d4
+order by n
+```
+
+### creating dbo.nums table
+```
+drop table if exists dbo.nums
+create table dbo.nums (n int);
+go
+
+insert into dbo.nums
+select d4.digit * 1000 + d3.digit * 100 + d2.digit * 10 + d1.digit + 1 as n
+from digits d1
+cross join digits d2
+cross join digits d3
+cross join digits d4
 ```
 
 # 3.2 Inner joins
