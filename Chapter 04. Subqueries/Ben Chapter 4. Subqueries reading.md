@@ -213,19 +213,45 @@ order by custid, orderid;
 
 ## 4.2.1 The EXISTS predicate
 
+### Concept
+<img width="680" height="412" alt="image" src="https://github.com/user-attachments/assets/f8fa84b1-5e25-411e-b21b-c89ddd0d1d97" />
+
+In the `Sales.Customers` table, there are 91 Customers, 5 of which are from Spain. There are custid 8, 22, 29, 30 and 69.
 ```
-select custid, companyname
-from sales.customers as C
-where country = N'Spain'
-and exists
-		(select * from sales.orders as O
-		where O.custid = C.custid)
+select * from sales.Customers
+where country = 'Spain'
 ```
 
-<img width="188" height="109" alt="image" src="https://github.com/user-attachments/assets/59397c03-44ca-4646-b8cd-234d1beea074" />
+<img width="956" height="122" alt="image" src="https://github.com/user-attachments/assets/331f2e13-bc8b-4125-a42a-3d7331e274e9" />
 
-This can also be achieved using Self-Contained multivalue subquery
 
+In the `Sales.Orders` table, only custid exists, they are 8, 29, 30 and 69. Custid 22 did not order anything.
+
+```
+select custid from sales.Orders
+where shipcountry = 'Spain'
+group by custid
+```
+
+### We want to find the customers from Spain who have placed orders.**
+
+<img width="394" height="217" alt="image" src="https://github.com/user-attachments/assets/58eca210-2dcd-4202-a585-55e80dc967d9" />
+
+there are three methods to do it.
+1. Using **JOIN** statement
+2. Using self-contained **multivalued subquery**
+3. using EXISTS with **Correlated subqueries**
+
+**Method 1. Using JOIN statement**
+```
+select distinct c.custid from sales.Customers c
+inner join sales.Orders o
+on c.custid = o.custid
+where 1 = 1
+and country = 'Spain'
+```
+
+**Method 2. Using self-contained multivalued subquery**
 ```
 select custid, companyname
 from sales.customers as C
@@ -234,8 +260,49 @@ and custid in
 		(select custid from sales.orders as O)
 ```
 
-### negate this
+**Method 3. Using EXISTS with Correlated subquery**
+```
+select custid, companyname
+from sales.customers as C
+where country = N'Spain'
+and EXISTS
+		(select * from sales.orders as O
+		where O.custid = C.custid)
+```
 
+<img width="188" height="109" alt="image" src="https://github.com/user-attachments/assets/59397c03-44ca-4646-b8cd-234d1beea074" />
+
+
+
+---
+
+
+### What about Spanish customer who did not place an order?
+
+**Method 1. Using JOIN statement**
+
+We have to change inner join to full join to customer 22 in the table, to filter out customers who placed an order we use `o.custid is null`
+
+```
+select distinct c.custid from sales.Customers c
+full outer join sales.Orders o
+on c.custid = o.custid
+where 1 = 1
+and country = 'Spain'
+and o.custid is null
+```
+
+**Method 2. Using self-contained multivalued subquery**
+
+```
+select custid
+from sales.customers as C
+where country = N'Spain'
+and custid NOT in 
+		(select custid from sales.orders as O)
+```
+
+**Method 3. Using EXISTS with Correlated subquery**
 ```
 select custid, companyname
 from sales.customers as C
@@ -245,15 +312,27 @@ and NOT exists
 		where O.custid = C.custid)
 ```
 
-```
-select custid, companyname
-from sales.customers as C
-where country = N'Spain'
-and custid NOT in 
-		(select custid from sales.orders as O)
-```
+
 
 <img width="195" height="67" alt="image" src="https://github.com/user-attachments/assets/9e625b66-389d-46c2-8f27-1f1793a9a275" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # 4.3 Beyond the Fundamentals of Subqueries
 
