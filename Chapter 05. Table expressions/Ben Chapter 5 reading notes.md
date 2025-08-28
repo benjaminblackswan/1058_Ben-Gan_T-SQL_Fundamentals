@@ -69,15 +69,47 @@ from (select year(orderdate) as orderyear, custid
 group by orderyear
 ```
 
-**Note: a variable in SQL Server is not persistent after each batch**
-
 <img width="203" height="114" alt="image" src="https://github.com/user-attachments/assets/0b0b33f6-9c52-4d28-845a-2b22f927ae5e" />
 
 
+**Note: a variable in SQL Server is not persistent after each batch**
+
+if you put GO after DECLARE statement, the script will fail.
+
+```
+declare @empid as int = 3;
+go
+
+select orderyear, count(distinct custid) as number_customers
+from (select year(orderdate) as orderyear, custid
+		from Sales.Orders
+		where empid = @empid) as D
+group by orderyear;
+```
 
 
-## 5.1.3 Nesting
+## 5.1.3 Nesting of Derived tables
 
+```
+select orderyear, count(distinct custid) as numcusts
+from
+(select year(orderdate) as orderyear, custid
+from sales.orders) D1
+group by orderyear ) D2
+where numcusts > 70
+```
+
+<img width="156" height="61" alt="image" src="https://github.com/user-attachments/assets/6b8d0d11-7f01-4f48-bffe-15db87f0e4e4" />
+
+
+Without using derived tables
+
+```
+select year(orderdate) as orderyear, count(distinct custid) as numcusts
+from sales.orders
+group by year(orderdate)
+having count(distinct custid) > 70
+```
 
 
 
@@ -87,41 +119,92 @@ group by orderyear
 
 ## 5.1.4 Multiple References
 
+```
+select cur.orderyear
+, cur.numcusts as Curnumcusts
+, prv.numcusts as Prvnumcusts
+, cur.numcusts - prv.numcusts as Growth
+from	(select year(orderdate) as orderyear,
+	count(distinct custid) as numcusts
+	from sales.orders
+	group by year(orderdate)) as Cur
+left join
+	(select year(orderdate) as orderyear,
+	count(distinct custid) as numcusts
+	from sales.orders
+	group by year(orderdate)) as Prv
+on cur.orderyear = prv.orderyear + 1
+```
+
+You can not refer to multiple instances of the same derived table. Leading to multiple copies of the same derived table as shown above. 
 
 
 
 
 
 
+# 5.2 Common Table Expressions (CTE)
+
+```
+with USACusts as
+(
+	select custid, companyname
+	from sales.customers
+	where country = N'USA'
+)
+
+select * from USACusts;
+```
+Note: CTE do not have table alias like **derived tables**
+
+## 5.2.1 Assigning Column aliases in CTEs
+
+### Inline form
+```
+With C as
+(
+	select year(orderdate) as orderyear, custid
+	from sales.orders
+)
+
+Select orderyear, count(distinct custid) as numcusts
+from C
+group by orderyear
+```
+
+### External form
+
+```
+With C(orderyear, custid) as
+(
+	select year(orderdate), custid
+	from sales.orders
+)
+
+Select orderyear, count(distinct custid) as numcusts
+from C
+group by orderyear
+```
 
 
 
 
+## 5.2.2 Using arguments in CTEs
 
+```
+declare @empid as int = 3;
 
+with c as
+(
+	select year(orderdate) as orderyear, custid
+	from sales.orders
+	where empid = @empid
+)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 5.2 Common Table Expressions
-
-
-
-
+select orderyear, count(distinct custid) as numcusts
+from c
+group by orderyear;
+```
 
 
 # 5.3 Views
