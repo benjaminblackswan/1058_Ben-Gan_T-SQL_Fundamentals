@@ -261,6 +261,14 @@ custid      orderid     orderdate   empid
 
 (90 row(s) affected)
 
+## Solution
+```
+select custid, orderid, orderdate, empid from sales.Orders o1
+where orderdate =
+(select max(orderdate) from sales.orders o2
+where o2.custid = o1.custid)
+order by custid
+```
 
 
 
@@ -270,8 +278,7 @@ custid      orderid     orderdate   empid
 
 
 
-
-
+---
 
 
 
@@ -284,7 +291,9 @@ custid      orderid     orderdate   empid
 
 # Exercise 6
 -- Write a query that returns customers
+
 -- who placed orders in 2015 but not in 2016
+
 -- Tables involved: TSQLV4 database, Customers and Orders tables
 
 -- Desired output:
@@ -301,6 +310,65 @@ custid      companyname
 ```
 
 (7 row(s) affected)
+
+
+
+## My solution (two joins)
+I used two joins, the first join is for the inner subquery to get customers who bought in 2016. Then the outer join filters customers who bought in 2015. 
+
+```
+select distinct c.custid, c.companyname
+from sales.Customers c
+join 
+ sales.orders o
+ on c.custid = o.custid
+where 1=1
+and c.custid not in
+(
+select distinct c.custid from sales.Customers c
+join 
+sales.orders o
+on c.custid = o.custid
+where orderdate >= '20160101' and orderdate < '20170101'
+)
+and orderdate >= '20150101' and orderdate < '20160101'
+order by c.custid
+```
+
+## Textbook solution (using EXISTS and NOT EXISTS)
+```
+select c.custid, c.companyname
+from sales.Customers c
+where 1 = 1
+and exists ( 
+select * from sales.orders o
+where 1 = 1
+and c.custid = o.custid
+and orderdate >= '20150101' and orderdate < '20160101'
+)
+and not exists ( 
+select * from sales.orders o
+where 1 = 1
+and c.custid = o.custid
+and orderdate >= '20160101' and orderdate < '20170101'
+)
+```
+
+
+
+
+
+
+---
+
+
+
+
+
+
+
+
+
 
 # Exercise 7 (Optional, Advanced)
 -- Write a query that returns customers
@@ -328,9 +396,66 @@ custid      companyname
 
 (12 row(s) affected)
 
+
+## My solution Using JOINS
+
+```
+select distinct c.custid, companyname from sales.orders o
+left join sales.Orderdetails od
+on o.orderid = od.orderid
+left join sales.Customers c
+on o.custid = c.custid
+where od.productid = 12
+```
+
+<img width="201" height="278" alt="image" src="https://github.com/user-attachments/assets/89a58cb2-47ff-4ee3-b399-c11f05056311" />
+
+## Textbook solution using nested EXISTS
+
+```
+select custid, companyname
+from sales.customers c
+where exists (
+select * from sales.orders o
+where o.custid = c.custid
+			and exists (
+			select * from sales.OrderDetails od
+			where od.orderid = o.orderid
+			and productid = 12
+))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Exercise 8 (Optional, Advanced)
 -- Write a query that calculates a running total qty
+
 -- for each customer and month using subqueries
+
 -- Tables involved: TSQLV4 database, Sales.CustOrders view
 
 -- Desired output:
@@ -352,15 +477,77 @@ custid      ordermonth              qty         runqty
 3           2015-06-01 00:00:00.000 83          217
 3           2015-09-01 00:00:00.000 102         319
 3           2016-01-01 00:00:00.000 40          359
-```
 ...
+```
 
 (636 row(s) affected)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Exercise 9
 -- Explain the difference between IN and EXISTS
 
--- 10 (Optional, Advanced)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Exercise 10 (Optional, Advanced)
 -- Write a query that returns for each order the number of days that past
 -- since the same customer’s previous order. To determine recency among orders,
 -- use orderdate as the primary sort element and orderid as the tiebreaker.
