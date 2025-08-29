@@ -423,7 +423,6 @@ where country = N'USA';
 Go
 
 select OBJECT_DEFINITION(object_id('Sales.USACusts'));
-
 ```
 you get a NULL value. 
 
@@ -436,26 +435,108 @@ The stored procedure alternative to OBJECT_DEFINITION function is **sp_helptext*
 
 ### 5.3.2.2 the SCHEMABINDING option
 
+```
+alter view Sales.USACusts with schemabinding
+as 
+
+select custid, companyname, contactname
+from sales.customers
+where country = N'USA';
+Go
+```
+
+now try to drop one of the column used in the View
+
+```
+alter table sales.customers drop column companyname
+```
+
+<img width="813" height="126" alt="image" src="https://github.com/user-attachments/assets/77eb1637-3bbe-4222-91f6-ef2297c0fa18" />
+
 
 
 
 ### 5.3.2.3 The Check Option
 
+first create a view without any options
+
+```
+drop view Sales.USACusts
+create VIEW Sales.USACusts
+AS
+
+SELECT
+  custid, companyname, contactname, contacttitle, address,
+  city, region, postalcode, country, phone, fax
+FROM Sales.Customers
+WHERE country = N'USA';
+GO
+```
+
+Lets insert a new value, where country is UK. 
+
+```
+INSERT INTO Sales.USACusts(
+  companyname, contactname, contacttitle, address,
+  city, region, postalcode, country, phone, fax)
+ VALUES(
+  N'Customer ABCDE', N'Contact ABCDE', N'Title ABCDE', N'Address ABCDE',
+  N'London', NULL, N'12345', N'UK', N'012-3456789', N'012-3456789');
+```
 
 
 
+if you query the Customers table, you can see that we have successfully inserted this new customer as Custid 98
+
+<img width="1241" height="132" alt="image" src="https://github.com/user-attachments/assets/66ea9ed3-f30b-4a43-a28d-cbbd4c20c479" />
+
+
+but if you query the view `Sales.USACusts`
+
+you will not get this new inserted value.
+
+<img width="1114" height="334" alt="image" src="https://github.com/user-attachments/assets/3f341e4a-f4b8-4515-9fa8-e15061e7caec" />
+
+This is because the customer is from the UK while the view only queries people from the USA.
 
 
 
+```
+alter view Sales.USACusts with schemabinding
+as
+
+SELECT
+  custid, companyname, contactname, contacttitle, address,
+  city, region, postalcode, country, phone, fax
+FROM Sales.Customers
+WHERE country = N'USA'
+with check option;
+go
+```
 
 
+try again to insert the UK customer through the view
 
 
+```
+INSERT INTO Sales.USACusts(
+  companyname, contactname, contacttitle, address,
+  city, region, postalcode, country, phone, fax)
+ VALUES(
+  N'Customer ABCDE', N'Contact ABCDE', N'Title ABCDE', N'Address ABCDE',
+  N'London', NULL, N'12345', N'UK', N'012-3456789', N'012-3456789');
+```
+<img width="1124" height="66" alt="image" src="https://github.com/user-attachments/assets/8286ea82-0724-465c-94ad-5ed2c0bc0a4a" />
 
 
+### clean up
 
+```
+delete from Sales.Customers
+where custid > 91;
 
-
+drop view if exists sales.USACusts;
+```
 
 # 5.4 Inline table-values Functions
 
