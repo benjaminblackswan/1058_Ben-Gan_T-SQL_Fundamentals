@@ -292,14 +292,50 @@ from yearlycount as cur
 
 
 ## 5.2.5 Recursive CTEs
-skipped
+
+```
+with empsCTE as
+(select empid, mgrid, firstname, lastname
+from hr.Employees
+where empid = 2
+
+union all
+
+select c.empid, c.mgrid, c.firstname, c.lastname
+from empsCTE as P
+	inner join hr.Employees as C
+	on C.mgrid = P.empid
+)
+
+select empid, mgrid, firstname, lastname
+from empsCTE;
+```
+
+<img width="249" height="186" alt="image" src="https://github.com/user-attachments/assets/1204d3f0-86fe-41c6-afdd-557cfe235e68" />
+
+**Note: the order of the ON statement matters here, see exercise 4**
 
 
+```
+with empsCTE as
+(select empid, mgrid, firstname, lastname
+from hr.Employees
+where empid = 9
+
+union all
+
+select c.empid, c.mgrid, c.firstname, c.lastname
+from empsCTE as P
+	inner join hr.Employees as C
+	on P.mgrid = C.empid
+)
+```
+
+<img width="260" height="108" alt="image" src="https://github.com/user-attachments/assets/6f6886df-4db3-4aa4-86f9-9c92df00524e" />
 
 
-
-
-
+select empid, mgrid, firstname, lastname
+from empsCTE;
 
 # 5.3 Views
 
