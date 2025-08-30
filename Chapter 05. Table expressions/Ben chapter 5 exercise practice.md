@@ -6,11 +6,13 @@ SELECT orderid, orderdate, custid, empid,
 FROM Sales.Orders
 WHERE orderdate <> endofyear;
 ```
+
 you'll get
+
 <img width="332" height="47" alt="image" src="https://github.com/user-attachments/assets/2a10ee42-f453-4c14-823f-82daa708af92" />
 
 
-We can not have alias in the Where clause.
+We can not have alias in the `WHERE` clause.
 
 
 ---
@@ -86,6 +88,7 @@ empid       orderdate   orderid     custid
 (10 row(s) affected)
 
 ## Solution - Using derived table
+
 ```
 select O.empid, O.orderdate, O.orderid, O.custid
 from sales.orders O
@@ -164,12 +167,14 @@ from sales.orders
 
 
 # Exercise  3-2
--- Write a query that returns rows with row numbers 11 through 20
--- based on the row number definition in exercise 3-1
--- Use a CTE to encapsulate the code from exercise 3-1
--- Tables involved: Sales.Orders
 
--- Desired output:
+Write a query that returns rows with row numbers 11 through 20 based on the row number definition in exercise 3-1. 
+Use a CTE to encapsulate the code from exercise 3-1
+Tables involved: Sales.Orders
+
+Desired output:
+
+```
 orderid     orderdate   custid      empid       rownum
 ----------- ----------- ----------- ----------- -------
 10258       2014-07-17  20          1           11
@@ -182,7 +187,7 @@ orderid     orderdate   custid      empid       rownum
 10265       2014-07-25  7           2           18
 10266       2014-07-26  87          3           19
 10267       2014-07-29  25          4           20
-
+```
 (10 row(s) affected)
 
 ```
