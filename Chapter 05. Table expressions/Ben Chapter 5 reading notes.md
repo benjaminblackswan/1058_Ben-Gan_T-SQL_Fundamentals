@@ -538,17 +538,162 @@ where custid > 91;
 drop view if exists sales.USACusts;
 ```
 
-# 5.4 Inline table-values Functions
+# 5.4 Inline table-values Functions (TVF)
+
+Ben-Gan calls it **paramaterised views**
+
+```
+drop function if exists dbo.GetCustOrders;
+Go
+
+create function dbo.GetCustOrders
+	(@cid as int) returns table
+as
+return
+	select orderid, custid, empid, orderdate
+	from Sales.orders
+	where custid = @cid;
+Go
+```
+
+```
+select orderid, custid
+from GetCustOrders(1) as O;
+```
+<img width="147" height="171" alt="image" src="https://github.com/user-attachments/assets/8f8bb616-dfb5-4cf3-b84d-8930b9effbde" />
 
 
-
-
-
-
-
-
-
+Use Inline TVF as part of a join
+```
+select O.orderid, custid, od.productid, od.qty
+from GetCustOrders(1) as O
+join sales.OrderDetails as OD
+on o.orderid = OD.orderid
+```
 
 
 
 # 5.5 The APPLY operator
+
+The ANSI equivalent is **LATERAL**
+
+## 5.5.1 CROSS APPLY
+
+```
+select S.shipperid, E.empid
+from Sales.Shippers as S
+cross join Hr.employees as E
+```
+
+```
+select S.shipperid, E.empid
+from Sales.Shippers as S
+cross apply Hr.employees as E
+```
+
+<img width="132" height="531" alt="image" src="https://github.com/user-attachments/assets/008c013c-f29d-486b-8d1d-ef18921f839a" />
+
+
+
+```
+select C.custid, A.orderid, A.orderdate
+from Sales.Customers as C
+cross apply
+(SELECT TOP (3) orderid, empid, orderdate, requireddate
+from Sales.orders as O
+where O.custid = C.custid
+order by orderdate desc, orderid desc) as A;
+```
+
+
+### See the top 1 version
+
+```
+select C.custid, A.orderid, A.orderdate
+from Sales.Customers as C
+cross apply
+(SELECT TOP (1) orderid, empid, orderdate, requireddate
+from Sales.orders as O
+where O.custid = C.custid
+order by orderdate desc, orderid desc) as A;
+```
+
+returns 89 rows 
+
+This is the same as 
+
+```
+select custid, max(orderdate), max(orderid)
+from sales.Orders
+group by custid
+order by custid
+```
+
+the cross apply is more powerful version of the correlated subquery because it lets you return more than one aggregate.
+
+Below returns the same as **Listing 4-1**.
+
+```
+select a.custid, A.orderid, A.orderdate, empid
+from Sales.Customers as C
+cross apply
+(SELECT TOP (1) custid, orderid, empid, orderdate, requireddate
+from Sales.orders as O
+where O.custid = C.custid
+order by orderdate desc, orderid desc) as A
+order by custid desc
+```
+
+## 5.5.2 OUTER APPLY
+
+
+
+```
+select C.custid, A.orderid, A.orderdate
+from Sales.Customers as C
+outer apply
+(SELECT TOP (3) orderid, empid, orderdate, requireddate
+from Sales.orders as O
+where O.custid = C.custid
+order by orderdate desc, orderid desc) as A;
+```
+
+Returns 265 rows.
+
+This include two customers who did not place any orders.
+
+
+## Inline TVF equivalent
+
+first create the TVF
+```
+drop function if exists dbo.TopOrders;
+Go
+
+create function dbo.TopOrders
+	(@custid as int, @n as int)
+	returns table
+as
+return
+	select top (@n) custid, orderid, empid, orderdate, requireddate
+	from sales.orders
+	where 1 = 1
+	and custid = @custid
+	order by orderdate desc, orderid desc;
+go
+```
+
+Then use cross apply
+
+```
+select c.custid, c.companyname,
+A.orderid, A.empid, A.orderdate, A.requireddate
+from Sales.Customers as C
+cross apply dbo.TopOrders(C.custid, 3) as A
+```
+
+
+
+
+
+
