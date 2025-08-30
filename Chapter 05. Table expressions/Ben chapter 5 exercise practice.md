@@ -234,13 +234,25 @@ empid       mgrid       firstname  lastname
 ## Solution
 
 
+```
+with empsCTE as
+(select empid, mgrid, firstname, lastname
+from hr.Employees
+where empid = 9
 
+union all
 
+select c.empid, c.mgrid, c.firstname, c.lastname
+from empsCTE as P
+	inner join hr.Employees as C
+	on P.mgrid = C.empid
+)
 
+select empid, mgrid, firstname, lastname
+from empsCTE;
+```
 
-
-
-
+<img width="254" height="116" alt="image" src="https://github.com/user-attachments/assets/1046b875-2b20-4ce5-9d0a-9c2c8a6d362f" />
 
 
 
@@ -248,13 +260,23 @@ empid       mgrid       firstname  lastname
 ---
 
 
-# Exercise  5-1
--- Create a view that returns the total qty
--- for each employee and year
--- Tables involved: Sales.Orders and Sales.OrderDetails
 
--- Desired output when running:
--- SELECT * FROM  Sales.VEmpOrders ORDER BY empid, orderyear
+
+
+
+
+# Exercise  5-1
+
+**Create a view that returns the total qty for each employee and year**
+
+Tables involved: Sales.Orders and Sales.OrderDetails
+
+Desired output when running:
+```
+SELECT * FROM  Sales.VEmpOrders ORDER BY empid, orderyear
+```
+
+```
 empid       orderyear   qty
 ----------- ----------- -----------
 1           2014        1620
@@ -284,28 +306,27 @@ empid       orderyear   qty
 9           2014        575
 9           2015        955
 9           2016        1140
+```
 
 (27 row(s) affected)
 
 
 
+```
+drop view if exists Sales.VEmpOrders
+Go
 
+create view Sales.VEmpOrders
+as 
+select empid, year(orderdate) as orderyear, sum(od.qty) as qty from sales.Orders o
+join sales.OrderDetails od
+on od.orderid = o.orderid
+group by empid, year(orderdate)
+go
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+select * from Sales.VEmpOrders
+order by empid, orderyear
+```
 
 
 
@@ -317,6 +338,8 @@ empid       orderyear   qty
 -- Tables involved: TSQLV4 database, Sales.VEmpOrders view
 
 -- Desired output:
+
+```
 empid       orderyear   qty         runqty
 ----------- ----------- ----------- -----------
 1           2014        1620        1620
@@ -346,57 +369,80 @@ empid       orderyear   qty         runqty
 9           2014        575         575
 9           2015        955         1530
 9           2016        1140        2670
+```
 
 (27 row(s) affected)
 
+## Textbook solution
+
+Using a **correlated Subquery** to find the running total.
+
+```
+select empid, orderyear, qty,
+(select sum(qty)
+from Sales.VEmpOrders as V2
+where 1 = 1
+and v2.empid = v1.empid
+and V2.orderyear <= V1.orderyear) as runqty
+from Sales.VEmpOrders v1
+order by empid, orderyear
+```
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+---
 
 
 
 
 # Exercise  6-1
--- Create an inline function that accepts as inputs
--- a supplier id (@supid AS INT), 
--- and a requested number of products (@n AS INT)
--- The function should return @n products with the highest unit prices
--- that are supplied by the given supplier id
--- Tables involved: Production.Products
+Create an inline function that accepts as inputs a supplier ID (@supid AS INT), and a requested number of products (@n AS INT).
+The function should return @n products with the highest unit prices that are supplied by the given supplier ID.
+
+Tables involved: Production.Products
 
 -- Desired output when issuing the following query:
--- SELECT * FROM Production.TopProducts(5, 2)
+```
+SELECT * FROM Production.TopProducts(5, 2)
+```
 
+```
 productid   productname                              unitprice
 ----------- ---------------------------------------- ---------------------
 12          Product OSFNS                            38.00
 11          Product QMVUN                            21.00
+```
 
 (2 row(s) affected)
 
 
 
+## My Solution
+
+first study the `Production.Products` table
+
+<img width="449" height="217" alt="image" src="https://github.com/user-attachments/assets/db742818-f1bf-45d4-8b93-4220c1fb2187" />
 
 
+```
+drop function if exists myfunction;
+go
 
+create function myfunction
+(@supid as int, @n as int)
+returns table
+as
+return
+	select top (@n) productid, productname, unitprice
+	from Production.Products
+	where supplierid = @supid
+	order by unitprice desc
+go
 
+select * from myfunction(5,2)
+```
 
-
-
-
+<img width="255" height="66" alt="image" src="https://github.com/user-attachments/assets/74b7e240-d37a-4eb4-b8bb-e4488e238a08" />
 
 
 
@@ -404,11 +450,11 @@ productid   productname                              unitprice
 
 
 # Exercise  6-2
--- Using the CROSS APPLY operator
--- and the function you created in exercise 6-1,
--- return, for each supplier, the two most expensive products
+Using the CROSS APPLY operator and the function you created in exercise 6-1, return, for each supplier, the two most expensive products for each supplier.
 
--- Desired output 
+Desired output 
+
+```
 supplierid  companyname     productid   productname     unitprice
 ----------- --------------- ----------- --------------- ----------
 8           Supplier BWGYE  20          Product QHFFP   81.00
@@ -420,9 +466,31 @@ supplierid  companyname     productid   productname     unitprice
 5           Supplier EQPNC  12          Product OSFNS   38.00
 5           Supplier EQPNC  11          Product QMVUN   21.00
 ...
+```
 
 (55 row(s) affected)
 
--- When youre done, run the following code for cleanup:
+## My Solution
+
+```
+select supplierid, companyname, p.productid, p.productname, p.unitprice
+from Production.Suppliers S
+cross apply myfunction(s.supplierid, 2) as P
+```
+
+<img width="409" height="286" alt="image" src="https://github.com/user-attachments/assets/d9c09bfd-8606-46c5-bb3f-e6115617a75f" />
+
+
+---
+
+
+
+
+# Clean up 
+
+When youre done, run the following code for cleanup:
+
+```
 DROP VIEW IF EXISTS Sales.VEmpOrders;
 DROP FUNCTION IF EXISTS Production.TopProducts;
+```
