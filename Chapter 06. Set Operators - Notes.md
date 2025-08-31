@@ -295,10 +295,57 @@ and with that we get the some result as `EXCEPT` operator. a very long detour, n
 
 ## 6.3.2 the EXCEPT ALL operator
 
+The concept of `EXCEPT ALL` is same to `EXCEPT` but it also takes into account of the number of times a row has occurred.
+
+this time we do not use distinct 
+
+```
+With
+EMP2 as (SELECT country, region, city FROM Hr.Employees),
+CUST2 as (SELECT country, region, city FROM Sales.Customers)
+```
+
+<img width="493" height="1804" alt="image" src="https://github.com/user-attachments/assets/29f5686c-ae00-4581-bce7-d582aa015a8b" />
+
+Looking at the picture above, this time addition to the Redmond and Tacoma.
+
+We have two occurances of Seattle in **EMP1** and only one occurance of Seattle in **CUST1**.
+
+We want only one occurance of Seattle from the **EMP1** table to be returned, ie 2-1 = 1.
+
+We will use the `ROW_NUMBER` function.
+
+```
+With
+EMP3 AS
+(	select
+		ROW_NUMBER() over(partition by country, region, city order by (select 0)) as rownum
+		, country
+		, region
+		, city
+	from HR.Employees),
+
+CUST3 AS
+(	select
+		ROW_NUMBER() over(partition by country, region, city order by (select 0)) as rownum
+		, country
+		, region
+		, city
+	from Sales.Customers),
+
+EXCEPT_ALL as
+(
+	select * from EMP3
+	except
+	select * from CUST3
+)
+
+select country, region, city from EXCEPT_ALL
+```
+1<img width="195" height="88" alt="image" src="https://github.com/user-attachments/assets/b04b290e-3944-4eaf-b57d-cf77b7895df0" />
 
 
-
-
+---
 
 
 
@@ -308,22 +355,108 @@ and with that we get the some result as `EXCEPT` operator. a very long detour, n
 
 # 6.4 Precedence
 
+`INTERSECT` operator have precedence over `UNION` and `EXCEPT`.
 
-# 6.5 Circumventing Unsupported logical phases
-
-
-
-
-
-
-
-
-
+```
+select country, region, city from production.Suppliers
+except
+select country, region, city from HR.Employees
+intersect
+select country, region, city from Sales.Customers
+```
 
 
+<img width="245" height="553" alt="image" src="https://github.com/user-attachments/assets/a4ba4ff1-52e3-4840-9886-dcb3b6fa4ca5" />
+
+
+28 rows returned
+
+Use parenthesis to control precedence.
+
+```
+(select country, region, city from production.Suppliers
+except
+select country, region, city from HR.Employees)
+intersect
+select country, region, city from Sales.Customers
+```
+
+<img width="203" height="83" alt="image" src="https://github.com/user-attachments/assets/47a70c00-9314-4a9d-8bc7-df079547fc43" />
 
 
 
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+# 6.5 Circumventing Unsupported Logical Phases
+
+## 6.5.1 Circumventing GROUP BY or WHERE not allowed in the results of a set operation
+
+Only `ORDER BY` works on the result of a set operation. eg
+
+```
+select country, region, city from HR.Employees
+UNION
+select country, region, city from Sales.Customers
+order by country.
+```
+
+<img width="239" height="375" alt="image" src="https://github.com/user-attachments/assets/40294dc7-b029-41f9-a94c-7e9cb5ef4aa7" />
+
+
+
+
+
+If you want to use `WHERE`, `GROUP BY` and `having` to the result of a set operator, you have to use a table expression.
+
+
+```
+select country, count(*) as numlocations
+from (
+select country, region, city from HR.Employees
+UNION
+select country, region, city from Sales.Customers) as U
+group by country
+```
+
+<img width="183" height="420" alt="image" src="https://github.com/user-attachments/assets/568f6ccc-04b0-452b-88eb-1ea5996ce18f" />
+
+
+
+
+## 6.5.2 Circumventing ORDER BY not allowed in the input queries.
+
+
+similarly, `ORDER BY` is not allowed in the input queries.  But you can also use table expressions to circumvent this limitation.
+
+```
+select empid, orderid, orderdate
+from (select top (2) empid, orderid, orderdate
+		from sales.orders
+		where empid = 3
+		order by orderdate desc, orderid desc)as D1
+
+UNION ALL
+
+select empid, orderid, orderdate
+from (select top (2) empid, orderid, orderdate
+		from sales.orders
+		where empid = 5
+		order by orderdate desc, orderid desc)as D1
+```
+
+<img width="201" height="104" alt="image" src="https://github.com/user-attachments/assets/83458ec4-4a82-4a4f-897c-1bd49413cea3" />
 
 
 
