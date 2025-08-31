@@ -244,7 +244,7 @@ there are three methods to do it.
 
 **Method 1. Using JOIN statement**
 ```
-select distinct c.custid from sales.Customers c
+select distinct c.custid, companyname from sales.Customers c
 inner join sales.Orders o
 on c.custid = o.custid
 where 1 = 1
