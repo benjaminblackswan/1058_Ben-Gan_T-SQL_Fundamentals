@@ -54,11 +54,11 @@ Upper bound recommendation
 
 # Exercise 2
 
--- Return orders placed on the last day of the month
+Return orders placed on the last day of the month
 
--- Tables involved: Sales.Orders table
+Tables involved: Sales.Orders table
 
--- Desired output:
+Desired output:
 
 ```
 orderid     orderdate  custid      empid
