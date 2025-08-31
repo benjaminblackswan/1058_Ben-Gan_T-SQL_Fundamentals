@@ -244,7 +244,7 @@ custid      empid
 
 ## Solution
 
-
+```
 (select custid, empid
 from sales.orders as o
 where orderdate >= '20160101' and orderdate < '20160201'
@@ -260,7 +260,7 @@ except
 select custid, empid
 from sales.orders as o
 where orderdate >= '20150101' and orderdate < '20151231'
-
+```
 
 
 
