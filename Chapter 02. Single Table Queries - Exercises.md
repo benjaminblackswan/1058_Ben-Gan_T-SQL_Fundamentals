@@ -99,11 +99,10 @@ where orderdate = DATEADD(MONTH, DATEDIFF(month, 0, orderdate), 0)
 ---
 
 # Exercise 3
--- Return employees with last name containing the letter 'e' twice or more
+Return employees with last name containing the letter 'e' twice or more
+Tables involved: HR.Employees table
 
--- Tables involved: HR.Employees table
-
--- Desired output:
+Desired output:
 ```
 empid       firstname  lastname
 ----------- ---------- --------------------
@@ -130,13 +129,12 @@ where lastname like '%e%e%'
 
 
 # Exercise 4
--- Return orders with total value(qty*unitprice) greater than 10000
+Return orders with total value(qty*unitprice) greater than 10000 sorted by total value
 
--- sorted by total value
-
--- Tables involved: Sales.OrderDetails table
+Tables involved: Sales.OrderDetails table
 
 Desired output:
+
 ```
 orderid     totalvalue
 ----------- ---------------------
@@ -184,13 +182,12 @@ order by TotalValue desc
 
 
 # Exercise 5
--- Write a query against the HR.Employees table that returns employees with a last name that starts with a lower case letter.
+Write a query against the HR.Employees table that returns employees with a last name that starts with a lower case letter. Remember that the collation of the sample database is case insensitive (Latin1_General_CI_AS).
 
--- Remember that the collation of the sample database is case insensitive (Latin1_General_CI_AS).
+Tables involved: Sales.OrderDetails table
 
--- Tables involved: Sales.OrderDetails table
+Desired output:
 
--- Desired output:
 ```
 empid       lastname
 ----------- --------------------
@@ -200,6 +197,7 @@ empid       lastname
 
 
 ## Text book solution
+
 ```
 select empid, lastname
 from hr.Employees
@@ -227,10 +225,14 @@ WHERE UNICODE(LEFT(LTRIM(LastName), 1)) BETWEEN UNICODE('a') AND UNICODE('z');
 ---
 
 
-# Exercise 6
--- Explain the difference between the following two queries
 
--- Query 1
+
+# Exercise 6
+Explain the difference between the following two queries
+
+
+Query 1
+
 ```
 SELECT empid, COUNT(*) AS numorders
 FROM Sales.Orders
@@ -238,7 +240,8 @@ WHERE orderdate < '20160501'
 GROUP BY empid;
 ```
 
--- Query 2
+Query 2
+
 ```
 SELECT empid, COUNT(*) AS numorders
 FROM Sales.Orders
@@ -262,11 +265,19 @@ HAVING MAX(orderdate) < '20160501';
 
 ---
 
-# Exercise 7
--- Return the three ship countries with the highest average freight for orders placed in 2015
--- Tables involved: Sales.Orders table
 
--- Desired output:
+
+
+
+
+
+# Exercise 7
+Return the three ship countries with the highest average freight for orders placed in 2015
+
+Tables involved: Sales.Orders table
+
+Desired output:
+
 ```
 shipcountry     avgfreight
 --------------- ---------------------
@@ -297,6 +308,10 @@ group by shipcountry
 order by avg_freight
 offset 0 rows fetch next 3 rows only;
 ```
+
+
+
+
 ---
 
 
@@ -309,12 +324,12 @@ offset 0 rows fetch next 3 rows only;
 
 
 # Exercise 8
--- Calculate row numbers for orders
--- based on order date ordering (using order id as tiebreaker)
--- for each customer separately
--- Tables involved: Sales.Orders table
+Calculate row numbers for orders based on order date ordering (using order id as tiebreaker) for each customer separately
 
--- Desired output:
+Tables involved: Sales.Orders table
+
+Desired output:
+
 ```
 custid      orderdate  orderid     rownum
 ----------- ---------- ----------- --------------------
@@ -335,6 +350,7 @@ custid      orderdate  orderid     rownum
 
 
 ## Solution requires WINDOWS function
+
 ```
 select custid, orderdate, orderid,
 row_number() over(partition by custid order by orderdate, orderid) as rownum
@@ -360,11 +376,13 @@ order by custid, rownum
 
 
 # Exercise 9
--- Figure out and return for each employee the gender based on the title of courtesy
--- Ms., Mrs. - Female, Mr. - Male, Dr. - Unknown
--- Tables involved: HR.Employees table
 
--- Desired output:
+Figure out and return for each employee the gender based on the title of courtesy Ms., Mrs. - Female, Mr. - Male, Dr. - Unknown
+
+Tables involved: HR.Employees table
+
+Desired output:
+
 ```
 empid       firstname  lastname             titleofcourtesy           gender
 ----------- ---------- -------------------- ------------------------- -------
@@ -425,13 +443,13 @@ from hr.Employees
 
 
 # Exercise 10
--- Return for each customer the customer ID and region
--- sort the rows in the output by region
--- having NULLs sort last (after non-NULL values)
--- Note that the default in T-SQL is that NULLs sort first
--- Tables involved: Sales.Customers table
 
--- Desired output:
+Return for each customer the customer ID and region sort the rows in the output by region having NULLs sort last (after non-NULL values) Note that the default in T-SQL is that NULLs sort first
+
+Tables involved: Sales.Customers table
+
+Desired output:
+
 ```
 custid      region
 ----------- ---------------
@@ -456,12 +474,17 @@ custid      region
 8           NULL
 9           NULL
 11          NULL
-...
+
 ```
+
+...
+
 
 (91 row(s) affected)
 
+
 ## official solution
+
 
 ```
 select custid, region from sales.Customers
@@ -472,9 +495,9 @@ order by case
 		  region;
 ```
 
+
 **note, you can use CASE statement in `ORDER BY` clause**
 
 
 
----
 
