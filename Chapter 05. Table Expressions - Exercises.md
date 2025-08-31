@@ -20,9 +20,11 @@ We can not have alias in the `WHERE` clause.
 
 # Exercise 2-1
 **Write a query that returns the maximum order date for each employee**
+
 Tables involved: TSQLV4 database, Sales.Orders table
 
---Desired output
+Desired output
+
 ```
 empid       maxorderdate
 ----------- -------------
@@ -67,7 +69,7 @@ group by empid
 
 Tables involved: Sales.Orders
 
--- Desired output:
+Desired output:
 
 
 ```
@@ -133,6 +135,7 @@ order by o.empid
 
 
 # Exercise  3-1
+
 **Write a query that calculates a row number for each order based on orderdate, orderid ordering**
 Tables involved: Sales.Orders
 
@@ -188,7 +191,10 @@ orderid     orderdate   custid      empid       rownum
 10266       2014-07-26  87          3           19
 10267       2014-07-29  25          4           20
 ```
+
 (10 row(s) affected)
+
+
 
 ```
 With CTE as (select orderid, orderdate, custid, empid
@@ -338,11 +344,11 @@ order by empid, orderyear
 
 
 # Exercise  5-2 (Optional, Advanced)
--- Write a query against Sales.VEmpOrders
--- that returns the running qty for each employee and year
--- Tables involved: TSQLV4 database, Sales.VEmpOrders view
+Write a query against **Sales.VEmpOrders** that returns the running qty for each employee and year
 
--- Desired output:
+Tables involved: TSQLV4 database, Sales.VEmpOrders view
+
+Desired output:
 
 ```
 empid       orderyear   qty         runqty
@@ -406,7 +412,8 @@ The function should return @n products with the highest unit prices that are sup
 
 Tables involved: Production.Products
 
--- Desired output when issuing the following query:
+Desired output when issuing the following query:
+
 ```
 SELECT * FROM Production.TopProducts(5, 2)
 ```
@@ -455,6 +462,7 @@ select * from myfunction(5,2)
 
 
 # Exercise  6-2
+
 Using the CROSS APPLY operator and the function you created in exercise 6-1, return, for each supplier, the two most expensive products for each supplier.
 
 Desired output 
@@ -493,7 +501,7 @@ cross apply myfunction(s.supplierid, 2) as P
 
 # Clean up 
 
-When youre done, run the following code for cleanup:
+When you're done, run the following code for cleanup:
 
 ```
 DROP VIEW IF EXISTS Sales.VEmpOrders;
