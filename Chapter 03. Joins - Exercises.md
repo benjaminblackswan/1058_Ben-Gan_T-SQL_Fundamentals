@@ -1,8 +1,10 @@
 # Exercises 1-1
--- Write a query that generates 5 copies out of each employee row
--- Tables involved: TSQLV4 database, Employees and Nums tables
+Write a query that generates 5 copies out of each employee row
 
---Desired output
+Tables involved: TSQLV4 database, Employees and Nums tables
+
+Desired output
+
 ```
 empid       firstname  lastname             n
 ----------- ---------- -------------------- -----------
@@ -79,6 +81,11 @@ where n < 6
 order by n, empid
 ```
 
+
+
+
+
+
 ---
 
 
@@ -90,24 +97,13 @@ order by n, empid
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 # Exercises 1-2 (Optional, Advanced)
--- Write a query that returns a row for each employee and day 
--- in the range June 12, 2016 – June 16 2016.
--- Tables involved: TSQLV4 database, Employees and Nums tables
+Write a query that returns a row for each employee and day in the range June 12, 2016 – June 16 2016.
 
---Desired output
+Tables involved: TSQLV4 database, Employees and Nums tables
+
+Desired output
+
 ```
 empid       dt
 ----------- -----------
@@ -162,6 +158,7 @@ empid       dt
 
 ### Solution
 
+
 ```
 select empid,
 dateadd(day, n - 1, cast('20160612' as date)) as dt
@@ -181,7 +178,8 @@ order by empid, dt
 
 
 # Exercises 2
--- Explain what’s wrong in the following query and provide a correct alternative
+Explain what’s wrong in the following query and provide a correct alternative
+
 ```
 SELECT Customers.custid, Customers.companyname, Orders.orderid, Orders.orderdate
 FROM Sales.Customers AS C
@@ -198,6 +196,7 @@ If you do alias, use only the alias.
 Once you assign an alias, you must use the alias, not the original name, in that query block.
 
 The correct query is
+
 ```
 SELECT c.custid, c.companyname, o.orderid, o.orderdate
 FROM Sales.Customers AS c
@@ -219,11 +218,12 @@ FROM Sales.Customers AS c
 
 
 # Exercises 3
--- Return US customers, and for each customer the total number of orders 
--- and total quantities.
--- Tables involved: TSQLV4 database, Customers, Orders and OrderDetails tables
+Return US customers, and for each customer the total number of orders and total quantities.
 
---Desired output
+Tables involved: TSQLV4 database, Customers, Orders and OrderDetails tables
+
+Desired output
+
 ```
 custid      numorders   totalqty
 ----------- ----------- -----------
@@ -243,6 +243,7 @@ custid      numorders   totalqty
 ```
 
 ## Solution
+
 ```
 select c.custid, count(distinct o.orderid), sum(qty)from sales.customers c
 inner join sales.orders o
@@ -253,6 +254,7 @@ where country = N'USA'
 group by c.custid
 order by c.custid
 ```
+
 (13 row(s) affected)
 
 
@@ -272,10 +274,13 @@ order by c.custid
 
 
 # Exercises 4
--- Return customers and their orders including customers who placed no orders
--- Tables involved: TSQLV4 database, Customers and Orders tables
 
--- Desired output
+Return customers and their orders including customers who placed no orders
+
+Tables involved: TSQLV4 database, Customers and Orders tables
+
+Desired output
+
 ```
 custid      companyname     orderid     orderdate
 ----------- --------------- ----------- -----------
@@ -297,6 +302,7 @@ custid      companyname     orderid     orderdate
 
 
 ## Solution
+
 ```
 select c.custid, c.companyname, o.orderid, o.orderdate from Sales.customers c
 left join sales.orders o
@@ -320,10 +326,13 @@ on c.custid = o.custid
 
 
 # Exercises 5
--- Return customers who placed no orders
--- Tables involved: TSQLV4 database, Customers and Orders tables
 
--- Desired output
+Return customers who placed no orders
+
+Tables involved: TSQLV4 database, Customers and Orders tables
+
+Desired output
+
 ```
 custid      companyname
 ----------- ---------------
@@ -334,6 +343,7 @@ custid      companyname
 (2 row(s) affected)
 
 ## Solution
+
 ```
 select c.custid, c.companyname, o.orderid, o.orderdate from Sales.customers c
 left join sales.orders o
@@ -358,10 +368,13 @@ where o.custid is null
 
 
 # Exercises 6
--- Return customers with orders placed on Feb 12, 2016 along with their orders
--- Tables involved: TSQLV4 database, Customers and Orders tables
 
--- Desired output
+Return customers with orders placed on Feb 12, 2016 along with their orders
+
+Tables involved: TSQLV4 database, Customers and Orders tables
+
+Desired output
+
 ```
 custid      companyname     orderid     orderdate
 ----------- --------------- ----------- ----------
@@ -374,6 +387,7 @@ custid      companyname     orderid     orderdate
 
 
 ## Solution
+
 ```
 select c.custid, companyname, orderid, orderdate from Sales.Customers C
 join Sales.Orders o
@@ -402,11 +416,13 @@ where orderdate = '20160212'
 
 
 # Exercises 7 (Optional, Advanced)
--- Write a query that returns all customers in the output, but matches
--- them with their respective orders only if they were placed on February 12, 2016
--- Tables involved: TSQLV4 database, Customers and Orders tables
 
--- Desired output
+Write a query that returns all customers in the output, but matches them with their respective orders only if they were placed on February 12, 2016
+
+Tables involved: TSQLV4 database, Customers and Orders tables
+
+Desired output
+
 ```
 custid      companyname     orderid     orderdate
 ----------- --------------- ----------- ----------
@@ -444,10 +460,13 @@ custid      companyname     orderid     orderdate
 20          Customer THHDP  NULL        NULL
 ...
 ```
+
+
 (91 row(s) affected)
 
 
 ## Solution
+
 ```
 select c.custid, c.companyname, o.orderid, o.orderdate
 from sales.Customers c
@@ -462,7 +481,7 @@ and o.orderdate = '2016-02-12')
 
 # Exercises 8 (Optional, Advanced)
 
--- Explain why the following query isn’t a correct solution query for exercise 7.
+Explain why the following query isn’t a correct solution query for exercise 7.
 
 ```
 SELECT C.custid, C.companyname, O.orderid, O.orderdate
@@ -497,11 +516,11 @@ WHERE O.orderdate = '20160212'
    
 
 # Exercises 9 (Optional, Advanced)
--- Return all customers, and for each return a Yes/No value
--- depending on whether the customer placed an order on Feb 12, 2016
--- Tables involved: TSQLV4 database, Customers and Orders tables
+Return all customers, and for each return a Yes/No value depending on whether the customer placed an order on Feb 12, 2016
 
--- Desired output
+Tables involved: TSQLV4 database, Customers and Orders tables
+
+Desired output
 custid      companyname     HasOrderOn20160212
 ----------- --------------- ------------------
 ...
@@ -524,6 +543,7 @@ custid      companyname     HasOrderOn20160212
 (91 row(s) affected)
 
 ## Solution
+
 ```
 select c.custid, c.companyname, 
 case when o.orderdate is null then 'No' else 'Yes' end as HasOrderOn20160212
