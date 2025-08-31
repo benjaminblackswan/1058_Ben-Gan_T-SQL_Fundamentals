@@ -1,10 +1,11 @@
 # Exercise 1
 
--- Write a query that returns all orders placed on the last day of
--- activity that can be found in the Orders table
--- Tables involved: TSQLV4 database, Orders table
+Write a query that returns all orders placed on the last day of activity that can be found in the Orders table
 
---Desired output
+Tables involved: TSQLV4 database, Orders table
+
+Desired output
+
 ```
 orderid     orderdate   custid      empid
 ----------- ----------- ----------- -----------
@@ -18,6 +19,7 @@ orderid     orderdate   custid      empid
 
 
 ## Solution
+
 **This is a simple scalar subquery**
 ```
 select orderid, orderdate, custid, empid
@@ -41,13 +43,14 @@ select max(orderdate) from sales.orders)
 
 # Exercise 2 (Optional, Advanced)
 
--- Write a query that returns all orders placed
--- by the customer(s) who placed the highest number of orders
--- * Note: there may be more than one customer
---   with the same number of orders
--- Tables involved: TSQLV4 database, Orders table
+Write a query that returns all orders placed by the customer(s) who placed the highest number of orders
 
--- Desired output:
+Note: there may be more than one customer with the same number of orders
+
+Tables involved: TSQLV4 database, Orders table
+
+Desired output:
+
 ```
 custid      orderid     orderdate  empid
 ----------- ----------- ---------- -----------
@@ -132,11 +135,13 @@ order by orderid
 
 
 # Exercise 3
--- Write a query that returns employees
--- who did not place orders on or after May 1st, 2016
--- Tables involved: TSQLV4 database, Employees and Orders tables
 
--- Desired output:
+Write a query that returns employees who did not place orders on or after May 1st, 2016
+
+Tables involved: TSQLV4 database, Employees and Orders tables
+
+Desired output:
+
 ```
 empid       FirstName  lastname
 ----------- ---------- --------------------
@@ -182,11 +187,12 @@ having max(orderdate) < '20160501'
 
 
 # Exercise 4
--- Write a query that returns
--- countries where there are customers but not employees
--- Tables involved: TSQLV4 database, Customers and Employees tables
+Write a query that returns countries where there are customers but not employees
 
--- Desired output:
+Tables involved: TSQLV4 database, Customers and Employees tables
+
+Desired output:
+
 ```
 country
 ---------------
@@ -215,6 +221,7 @@ Venezuela
 
 
 ## Solution
+
 ```
 select distinct country from sales.customers
 where country not in (
@@ -238,11 +245,12 @@ select country from hr.Employees)
 
 
 # Exercise 5
--- Write a query that returns for each customer
--- all orders placed on the customer's last day of activity
--- Tables involved: TSQLV4 database, Orders table
+Write a query that returns for each customer all orders placed on the customer's last day of activity
 
--- Desired output:
+Tables involved: TSQLV4 database, Orders table
+
+Desired output:
+
 ```
 custid      orderid     orderdate   empid
 ----------- ----------- ----------- -----------
@@ -262,6 +270,7 @@ custid      orderid     orderdate   empid
 (90 row(s) affected)
 
 ## Solution
+
 ```
 select custid, orderid, orderdate, empid from sales.Orders o1
 where orderdate =
@@ -290,13 +299,12 @@ order by custid
 
 
 # Exercise 6
--- Write a query that returns customers
+Write a query that returns customers who placed orders in 2015 but not in 2016
 
--- who placed orders in 2015 but not in 2016
+Tables involved: TSQLV4 database, Customers and Orders tables
 
--- Tables involved: TSQLV4 database, Customers and Orders tables
+Desired output:
 
--- Desired output:
 ```
 custid      companyname
 ----------- ----------------------------------------
@@ -314,6 +322,7 @@ custid      companyname
 
 
 ## My solution (two joins)
+
 I used two joins, the first join is for the inner subquery to get customers who bought in 2016. Then the outer join filters customers who bought in 2015. 
 
 ```
@@ -371,12 +380,12 @@ and orderdate >= '20160101' and orderdate < '20170101'
 
 
 # Exercise 7 (Optional, Advanced)
--- Write a query that returns customers
--- who ordered product 12
--- Tables involved: TSQLV4 database,
--- Customers, Orders and OrderDetails tables
+Write a query that returns customers who ordered product 12
 
--- Desired output:
+Tables involved: TSQLV4 database, Customers, Orders and OrderDetails tables
+
+Desired output:
+
 ```
 custid      companyname
 ----------- ----------------------------------------
@@ -392,6 +401,7 @@ custid      companyname
 46          Customer XPNIK
 31          Customer YJCBX
 87          Customer ZHYOS
+
 ```
 
 (12 row(s) affected)
@@ -452,13 +462,12 @@ where o.custid = c.custid
 
 
 # Exercise 8 (Optional, Advanced)
--- Write a query that calculates a running total qty
+Write a query that calculates a running total qty for each customer and month using subqueries
 
--- for each customer and month using subqueries
+Tables involved: TSQLV4 database, Sales.CustOrders view
 
--- Tables involved: TSQLV4 database, Sales.CustOrders view
+Desired output:
 
--- Desired output:
 ```
 custid      ordermonth              qty         runqty
 ----------- ----------------------- ----------- -----------
@@ -516,26 +525,7 @@ custid      ordermonth              qty         runqty
 
 
 # Exercise 9
--- Explain the difference between IN and EXISTS
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Explain the difference between IN and EXISTS
 
 
 
@@ -548,12 +538,12 @@ custid      ordermonth              qty         runqty
 
 
 # Exercise 10 (Optional, Advanced)
--- Write a query that returns for each order the number of days that past
--- since the same customer’s previous order. To determine recency among orders,
--- use orderdate as the primary sort element and orderid as the tiebreaker.
--- Tables involved: TSQLV4 database, Sales.Orders table
+Write a query that returns for each order the number of days that past since the same customer’s previous order. To determine recency among orders, use orderdate as the primary sort element and orderid as the tiebreaker.
 
--- Desired output:
+Tables involved: TSQLV4 database, Sales.Orders table
+
+Desired output:
+
 ```
 custid      orderdate  orderid     diff
 ----------- ---------- ----------- -----------
