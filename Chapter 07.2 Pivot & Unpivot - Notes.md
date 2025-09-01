@@ -61,9 +61,6 @@ Each `PIVOT` has three elements
 
 ## 7.2.1 Pivoting with a grouped query
 
-
-
-
 ```
 select empid
 	, sum(case when custid = 'A' then qty end) as A
@@ -75,56 +72,53 @@ group by empid
 ```
 <img width="261" height="84" alt="image" src="https://github.com/user-attachments/assets/8e51ea83-087f-43b2-83a2-a9510e49da04" />
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ## 7.2.2 Pivoting with the PIVOT operator
 
+```
+with CTE as
+(select empid, custid, qty
+from dbo.orders)
+
+select empid, A, B, C, D
+from CTE
+pivot(sum(qty) for custid in(A, B, C, D)) as P
+```
+
+<img width="261" height="84" alt="image" src="https://github.com/user-attachments/assets/246a9292-4e05-41e0-823d-3945085fc2e5" />
 
 
+what happens if we query directly from **dbo.Orders**?
 
 
+<img width="250" height="240" alt="image" src="https://github.com/user-attachments/assets/f1a453a6-fbdb-4fe3-9e94-7f9b2af0ae27" />
+
+non-pivot equivalent would be
+
+```
+select empid
+	, sum(case when custid = 'A' then qty end) as A
+	, sum(case when custid = 'B' then qty end) as B
+	, sum(case when custid = 'C' then qty end) as C
+	, sum(case when custid = 'D' then qty end) as D
+from dbo.Orders
+group by empid, orderid, orderdate
+```
 
 
+lets swap the rows and the columns, ie Group Element is *custid* and the spreading element is *empid*.
 
 
+```
+with CTE as
+(select empid, custid, qty
+from dbo.orders)
 
+select custid, [1],[2],[3]
+from CTE
+pivot(sum(qty) for empid in([1],[2],[3])) as P
+```
 
-
-
-
-
-
-
-
-
-
-
-
+<img width="209" height="100" alt="image" src="https://github.com/user-attachments/assets/5de3fd72-98c2-4673-a034-1d6eddc8573c" />
 
 
 
