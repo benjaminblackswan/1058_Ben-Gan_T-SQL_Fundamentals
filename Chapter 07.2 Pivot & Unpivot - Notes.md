@@ -125,69 +125,48 @@ pivot(sum(qty) for empid in([1],[2],[3])) as P
 # 7.3 Unpivoting Data
 
 
+Create this new table
+```
+DROP TABLE IF EXISTS dbo.EmpCustOrders;
 
+CREATE TABLE dbo.EmpCustOrders
+(
+  empid INT NOT NULL
+    CONSTRAINT PK_EmpCustOrders PRIMARY KEY,
+  A VARCHAR(5) NULL,
+  B VARCHAR(5) NULL,
+  C VARCHAR(5) NULL,
+  D VARCHAR(5) NULL
+);
 
+INSERT INTO dbo.EmpCustOrders(empid, A, B, C, D)
+  SELECT empid, A, B, C, D
+  FROM (SELECT empid, custid, qty
+        FROM dbo.Orders) AS D
+    PIVOT(SUM(qty) FOR custid IN(A, B, C, D)) AS P;
+```
 
+<img width="257" height="87" alt="image" src="https://github.com/user-attachments/assets/30ddc4e1-5a20-4458-964b-d22768178bae" />
 
+We want to unpivot back to this.
 
-
+<img width="175" height="158" alt="image" src="https://github.com/user-attachments/assets/dbf3c240-78a1-4f7b-b9d0-e6ed39ca2721" />
 
 
 
 ## 7.3.1 Unpivoting with the APPLY operator
 
+```
+select empid, custid, qty
+from dbo.EmpCustOrders
+cross apply (values('A', A),('B', B),('C', C),('D', D)) as C(Custid, qty)
+where qty is not null;
+```
 
-
-
-
-
-
-
-
-
-
+<img width="150" height="157" alt="image" src="https://github.com/user-attachments/assets/5b9906db-4d40-400c-8ee9-b793d890b742" />
 
 
 ## 7.3.2 Unpivoting with the UNPIVOT operator
-
-
-
-# 7.4 Grouping Data
-
-
-
-
-
-
-
-
-
-
-
-## 7.4.1 The GROUPING SETS subclause
-
-
-
-
-
-
-
-
-
-## 7.4.2 the CUBE subclause
-
-
-
-
-
-
-## 7.4.3 the ROLLUP subclause
-
-
-
-
-
-## 7.4.4 The GROUPING and GROUPING_ID function
 
 
 
