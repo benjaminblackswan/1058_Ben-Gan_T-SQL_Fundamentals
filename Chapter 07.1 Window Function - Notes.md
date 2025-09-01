@@ -260,109 +260,33 @@ Note: `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW` is optional for *PrevVa
 
 ## 7.1.3 Aggregate window functions
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 7.2 Pivoting Data
-
-
-
-
-
-
-## 7.2.1 Pivoting with a grouped query
-
-
-
-
-
-
-## 7.2.2 Pivoting with the PIVOT operator
-
-
-
-
-
-
-# 7.3 Unpivoting Data
-
-
-
-
-
-
-
-
-
-
-
-## 7.3.1 Unpivoting with the APPLY operator
-
-
-
-
-
-
-
-
-
-
-
-
-
-## 7.3.2 Unpivoting with the UNPIVOT operator
-
-
-
-
-
-# 7.4 Grouping Data
-
-
-
-
-
-
-
-
-
-
-
-## 7.4.1 The GROUPING SETS subclause
-
-
-
-
-
-
-
-
-
-## 7.4.2 the CUBE subclause
-
-
-
-
-
-
-## 7.4.3 the ROLLUP subclause
-
-
-
-
-
-## 7.4.4 The GROUPING and GROUPING_ID function
-
-
-
+```
+select orderid, custid, val
+, sum(val) over() as TotalValue
+, sum(val) over(partition by custid) as CustTotalValue
+from Sales.OrderValues
+```
+
+<img width="337" height="478" alt="image" src="https://github.com/user-attachments/assets/4514caf1-1ca9-4ed6-87bd-d2bafdfd1bd0" />
+
+```
+select orderid, custid, val
+, 100. * val/sum(val) over() as Pct_All
+, 100. * val/sum(val) over(partition by custid) as Pct_Customer
+from Sales.OrderValues
+```
+
+<img width="503" height="441" alt="image" src="https://github.com/user-attachments/assets/f8b182bf-994e-49f0-a46f-a0e67b05b88e" />
+
+
+
+```
+select Empid, Ordermonth, Val
+, sum(Val) over(partition by Empid
+				order by OrderMonth
+				ROWS BETWEEN UNBOUNDED PRECEDING
+					AND CURRENT ROW) as Run_Val
+from Sales.EmpOrders
+```
+
+<img width="280" height="498" alt="image" src="https://github.com/user-attachments/assets/5353157c-c214-4bc3-ab06-b818f4481134" />
