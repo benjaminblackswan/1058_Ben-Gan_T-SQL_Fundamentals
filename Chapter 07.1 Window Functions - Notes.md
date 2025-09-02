@@ -207,7 +207,8 @@ from sales.OrderValues
 
 however `GROUP BY` is processed before `SELECT`, remember this order in SQL?
 
-<img width="431" height="244" alt="image" src="https://github.com/user-attachments/assets/4d6019d0-6d57-49bf-9a8a-bab732775e38" />
+<img width="503" height="259" alt="image" src="https://github.com/user-attachments/assets/d8dbf94b-93da-42b2-8db0-0e3412c241eb" />
+
 
 by using `GROUP BY`, we basically applied `DISTINCT` before the Window Function. `ROW_NUMBER()` then applies the numbers to the 795 rows returned from `GROUP BY`.
 
