@@ -83,9 +83,10 @@ select empid, A, B, C, D
 from CTE
 pivot(sum(qty) for custid in(A, B, C, D)) as P
 ```
+<img width="783" height="377" alt="image" src="https://github.com/user-attachments/assets/a80f6dba-4ee4-4da4-a8e2-cf4e1b29f364" />
 
-<img width="261" height="84" alt="image" src="https://github.com/user-attachments/assets/246a9292-4e05-41e0-823d-3945085fc2e5" />
 
+---
 
 what happens if we query directly from **dbo.Orders**?
 
@@ -168,11 +169,14 @@ where qty is not null;
 
 ## 7.3.2 Unpivoting with the UNPIVOT operator
 
+<img width="677" height="301" alt="image" src="https://github.com/user-attachments/assets/7089d62a-0caa-4f6f-8f4a-352b6dfb47ca" />
 
 
-
-
-
+```
+select EmpID, CustID, Qty
+from EmpCustOrders
+	unpivot(Qty FOR CustID in(A, B, C, D)) as U;
+```
 
 
 
