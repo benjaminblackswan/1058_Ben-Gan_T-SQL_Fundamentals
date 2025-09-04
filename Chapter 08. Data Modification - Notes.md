@@ -108,18 +108,95 @@ from Sales.Orders
 where shipcountry = 'UK';
 ```
 
-<img width="655" height="97" alt="image" src="https://github.com/user-attachments/assets/09045851-473a-41eb-9aec-f05c6f3e2d0b" />
+---
+
+
+## 8.1.3 INSERT INTO ... EXEC... statement
+
+First create a restored procedure
+
+```
+Drop proc if exists sales.GetOrders;
+Go
+
+Create proc sales.GetOrders
+	@country as nvarchar(40)
+as
+Select orderid, orderdate, empid, custid
+from Sales.Orders
+Where shipcountry = @country
+```
+
+Test out the Stored Proc
+
+```
+EXEC sales.getorders @country = N'France'
+```
+
+77 rows returned
+
+```
+insert into dbo.orders(orderid, orderdate, empid, custid)
+	exec sales.GetOrders @country = N'France'
+```
+
+
+## 8.1.4 SELECT ... INTO ... FROM ...
+
+* this is non ANSI
+* can only be used to create new tables
+
+
+
+```
+drop table if exists dbo.orders;
+
+select orderid, orderdate, empid, custid
+into dbo.orders
+from sales.orders
+```
+
+
 
 ---
 
 
 
+### SELECT INTO FROM with Set operation
+
+```
+select country, region, city
+from sales.customers
+except
+select country, region, city
+from HR.Employees
+```
+<img width="308" height="310" alt="image" src="https://github.com/user-attachments/assets/1e29858f-64bd-4755-930e-b04e29f270b5" />
+
+66 rows returned
 
 
+put the INTO clause in the first select statement
 
-## 8.1.3 INSERT EXEC statement
 
-## 8.1.4 SELECT INTO 
+```
+drop table if exists dbo.locations
+
+select country, region, city
+INTO dbo.locations
+from sales.customers
+except
+select country, region, city
+from HR.Employees
+```
+
+```
+select * from locations
+```
+
+
+*66 rows returned*
+
 
 
 ## 8.1.5 BULK INSERT 
