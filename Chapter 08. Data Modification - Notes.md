@@ -201,7 +201,143 @@ select * from locations
 
 ## 8.1.5 BULK INSERT 
 
+used to insert a file into SQL Server table.
+
+
+```
+delete from orders
+
+bulk insert dbo.orders from 'C:\Users\benja\OneDrive\Onedrive\Self-Studies\1058 - Ben-Gan, T-SQL Fundamentals 3e\Chapter 08. Data modification\orders.txt'
+with
+	(
+		datafiletype = 'char',
+		fieldterminator = ',',
+		rowterminator = '\n'
+
+	);
+
+select * from orders
+```
+
+
+<img width="246" height="222" alt="image" src="https://github.com/user-attachments/assets/70ab593a-733f-4d14-9b08-b81a246ab6e7" />
+
+10 rows returned
+
+
 ## 8.1.6 Identity Property and the sequence object
+
+
+### 8.1.6.1 Identity
+**Identity** is used to generate *Surrogate Keys*
+
+
+```
+drop table if exists dbo.T1;
+
+create table dbo.T1
+(
+	keycol int not null identity(1,1)
+		constraint PK_T1 primary key,
+	datacol varchar(10) not null
+		constraint chk_T1_dotacol check(datacol like '[ABCDEFGHIJKLMNOPQRSTUVWXYZ]%')
+);
+```
+
+we must ignore the Identity column when inserting data.
+
+```
+ insert into dbo.T1(datacol)
+ values	('AAA'),
+		('BBB'),
+		('CCC');
+```
+
+<img width="134" height="82" alt="image" src="https://github.com/user-attachments/assets/3d140965-c1a1-4ed8-b025-0fd679d400b7" />
+
+To select an identiy column, use the *Keycol* or generic *$identity*
+
+```
+select $identity from T1;
+```
+
+<img width="84" height="83" alt="image" src="https://github.com/user-attachments/assets/656b8f15-d0fc-4b83-be5f-626477dd12da" />
+
+`SCOPE_IDENTITY` returns the last identity value generated in the current scope.
+
+```
+ declare @new_key as int;
+
+ insert into dbo.T1(datacol) values('AAAAA');
+
+ set @new_key = SCOPE_IDENTITY();
+
+ select @new_key as new_key
+```
+
+<img width="99" height="44" alt="image" src="https://github.com/user-attachments/assets/92363b6a-6dc7-48e0-a32f-b06537d2c596" />
+
+
+```
+select
+SCOPE_IDENTITY() as [Scope_identity]
+, @@IDENTITY as [@@idenity]
+, IDENT_CURRENT('dbo.T1') as [Ident_current];
+```
+
+retrieve the last identity value regardless which session, use `IDENT_CURRENT`
+
+<img width="269" height="45" alt="image" src="https://github.com/user-attachments/assets/e72fe89e-b655-4129-887f-96d52348e74e" />
+
+
+
+#### insert explicit Identity value
+
+We will need to turn on `SET IDENTITY_INSERT`
+
+```
+SET IDENTITY_INSERT T1 On;
+Insert into T1(keycol, datacol) values(18, 'YYY');
+SET IDENTITY_INSERT T1 Off;
+```
+
+#### Reset Identity value
+
+use `DBCC CHECKIDENT` command to reseed, ie change the value of identity back to 0.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### 8.1.6.2 Sequence
+
+
+
+
+
+
 
 
 
@@ -209,8 +345,29 @@ select * from locations
 
 # 8.2 Deleting Data
 
-# 8.3 Updating Data
 
-# 8.4 Merging Data
 
-# 8.5 Modifying data through table expressions
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
