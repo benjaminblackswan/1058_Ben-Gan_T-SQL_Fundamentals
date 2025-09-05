@@ -303,26 +303,7 @@ SET IDENTITY_INSERT T1 Off;
 
 #### Reset Identity value
 
-use `DBCC CHECKIDENT` command to reseed, ie change the value of identity back to 0.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+use `DBCC CHECKIDENT` command to reseed, ie change the value of identity back to 0
 
 
 
@@ -333,39 +314,244 @@ use `DBCC CHECKIDENT` command to reseed, ie change the value of identity back to
 
 ### 8.1.6.2 Sequence
 
+The default min and max values of a sequence is the min and max value supported by the data type. Therefore it is important to explicit define the min value.
+
+```
+create sequence dbo.SeqOrderIDs as int
+	minvalue 1
+	cycle;
+```
+To alter the sequence property, use `ALTER`
+
+```
+alter sequence dbo.SeqOrderIDs
+	No cycle;
+```
+
+```
+select next value for dbo.SeqOrderIDs
+```
+
+<img width="139" height="43" alt="image" src="https://github.com/user-attachments/assets/d8d0e57f-ae8c-4507-aeb6-dc32b58352c0" />
 
 
+create a new table called **T1**.
 
 
+```
+drop table if exists dbo.T1
+
+create table dbo.T1
+(
+	keycol int not null
+		constraint pk_T1 primary key, 
+	datacol varchar(10) not null
+)
+```
+#### Inserting new sequence value through a variable
+
+```
+declare @neworderid as int = next value for dbo.SeqOrderIDs;
+insert into dbo.T1(keycol, datacol) values(@neworderid, 'a');
+
+select * from dbo.T1
+```
+
+<img width="136" height="45" alt="image" src="https://github.com/user-attachments/assets/7665c03b-6bce-45da-a1f7-b6262a600428" />
+
+#### Inserting new sequence value directly
+
+```
+INSERT INTO dbo.T1(keycol, datacol)
+	values(NEXT VALUE FOR dbo.SeqOrderIDs, 'b');
+
+select * from dbo.T1
+```
+
+<img width="136" height="63" alt="image" src="https://github.com/user-attachments/assets/938fe330-ed9f-4445-a5cb-70a8b688d525" />
+
+#### update column with Sequence
+
+```
+UPDATE dbo.T1
+	SET keycol = NEXT VALUE FOR dbo.SeqOrderIDs;
+
+select * from dbo.T1
+```
+
+<img width="144" height="62" alt="image" src="https://github.com/user-attachments/assets/3d8c11d3-2b66-4cab-8bdb-37ac118ef1e8" />
+
+#### to find the current value of a Sequence.
+
+```
+select current_value
+from sys.sequences
+where OBJECT_ID = OBJECT_ID(N'dbo.SeqOrderIDs')
+```
+
+#### multirow INSERT using OVER()
+
+```
+insert into dbo.T1(keycol, datacol)
+	select
+		next value for dbo.SeqOrderIDs over(order by hiredate),
+		left(firstname, 1) + left(lastname, 1)
+	from hr.Employees
+
+select * from dbo.T1;
+```
+
+<img width="131" height="235" alt="image" src="https://github.com/user-attachments/assets/6b380623-e5ce-4335-b57f-c21da13883da" />
 
 
+#### adding sequence value as part of the Table Constraint
+
+adding the constraint
+
+```
+ALTER TABLE dbo.T1
+	Add constraint DFT_T1_Keycol
+	 Default (next value for dbo.SeqOrderIDs)
+	 for keycol;
+```
+
+inserting the data
+
+```
+insert into dbo.T1(datacol) values('C');
+
+select * from T1;
+```
+
+<img width="134" height="258" alt="image" src="https://github.com/user-attachments/assets/d0d9ac87-fccd-49a2-b0d9-ab7dc16d1db0" />
 
 
+#### sp_sequence_get_range
 
+```
+declare @first as sql_variant;
+
+exec sys.sp_sequence_get_range
+	@sequence_name = 'dbo.SeqOrderIDs',
+	@range_size = 1000000,
+	@range_first_value = @first output;
+
+select @first
+```
+
+#### clean up
+
+```
+drop table if exists dbo.T1;
+drop sequence if exists dbo.SeqOrderIDs;
+```
 
 # 8.2 Deleting Data
 
+```
+DROP TABLE IF EXISTS dbo.Orders, dbo.Customers;
+
+CREATE TABLE dbo.Customers
+(
+  custid       INT          NOT NULL,
+  companyname  NVARCHAR(40) NOT NULL,
+  contactname  NVARCHAR(30) NOT NULL,
+  contacttitle NVARCHAR(30) NOT NULL,
+  address      NVARCHAR(60) NOT NULL,
+  city         NVARCHAR(15) NOT NULL,
+  region       NVARCHAR(15) NULL,
+  postalcode   NVARCHAR(10) NULL,
+  country      NVARCHAR(15) NOT NULL,
+  phone        NVARCHAR(24) NOT NULL,
+  fax          NVARCHAR(24) NULL,
+  CONSTRAINT PK_Customers PRIMARY KEY(custid)
+);
+
+CREATE TABLE dbo.Orders
+(
+  orderid        INT          NOT NULL,
+  custid         INT          NULL,
+  empid          INT          NOT NULL,
+  orderdate      DATE         NOT NULL,
+  requireddate   DATE         NOT NULL,
+  shippeddate    DATE         NULL,
+  shipperid      INT          NOT NULL,
+  freight        MONEY        NOT NULL
+    CONSTRAINT DFT_Orders_freight DEFAULT(0),
+  shipname       NVARCHAR(40) NOT NULL,
+  shipaddress    NVARCHAR(60) NOT NULL,
+  shipcity       NVARCHAR(15) NOT NULL,
+  shipregion     NVARCHAR(15) NULL,
+  shippostalcode NVARCHAR(10) NULL,
+  shipcountry    NVARCHAR(15) NOT NULL,
+  CONSTRAINT PK_Orders PRIMARY KEY(orderid),
+  CONSTRAINT FK_Orders_Customers FOREIGN KEY(custid)
+    REFERENCES dbo.Customers(custid)
+);
+GO
+
+INSERT INTO dbo.Customers SELECT * FROM Sales.Customers;
+INSERT INTO dbo.Orders SELECT * FROM Sales.Orders;
+```
+
+## 8.2.1 DELETE Statement
+
+```
+delete from dbo.orders
+where orderdate < '20150101';
+```
+
+<img width="543" height="75" alt="image" src="https://github.com/user-attachments/assets/0ee1445d-1ff9-48af-ad60-03e882594a63" />
+
+note: `DELETE` is expensive because it is fully logged.
+
+```
+select * from orders
+```
+
+678 rows returned (originally there was 830 rows, 152 rows were deleted)
+
+## 8.2.2 TRUNCATE Statement
+
+```
+truncate table dbo.T1
+```
+
+truncate tables with partitions
+
+```
+truncate table dbo.T1 with (partition(1,3,5 to 10))
+```
+
+## 8.2.3 DELETE Based on a join (non-ANSI)
+
+Used to delete rows from one table used on filter in another table, avoid in favour of using a subquery.
+
+```
+delete from O
+from dbo.Orders as O
+	inner join dbo.customers as C
+				on O.custid = C.custid
+	where C.country = N'USA';
+```
+
+(122 rows affected)
 
 
+#### Subquery equivalent
 
+```
+delete from dbo.orders
+where exists
+	(select * 
+		from dbo.customers as c
+		where orders.custid = c.custid
+		and c.country = 'USA')
+```
 
+(122 rows affected)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+---
 
 
 
